@@ -5,6 +5,14 @@ function main(){
     const canvas = document.querySelector("#c");
     const renderer = new THREE.WebGLRenderer({antialias: true, canvas});
 
+    //Time Object
+    const time = new Date();
+    console.log(time);
+
+    //Set strings for day and night
+    const dayTimeTexture = '/assets/dayTimeEarth.jpg';
+    const nightTimeTexture = '/assets/nightTimeEarth.jpg';
+
     //parameters are: fov, aspect, near, and far
     const camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.1, 10);
     camera.position.z = 2; //camera defaults to looking down -z axis and y axis up
@@ -14,7 +22,15 @@ function main(){
 
     //sets the 3d space of the sphere
     const geometry = new THREE.SphereGeometry(1, 48, 24);
-    const material = new THREE.MeshPhongMaterial({color: 0x005477});
+    if (time.getHours() >= 6 && time.getHours() < 20){
+        var material = new THREE.MeshPhongMaterial({
+            map: new THREE.TextureLoader().load(dayTimeTexture),
+        });
+    } else {
+        var material = new THREE.MeshPhongMaterial({
+            map: new THREE.TextureLoader().load(nightTimeTexture),
+        });
+    }
     const sphere = new THREE.Mesh(geometry, material);
     sphere.position.x = 0;
     scene.add(sphere);
