@@ -5,7 +5,7 @@ function main(){
     const canvas = document.querySelector("#c");
     const renderer = new THREE.WebGLRenderer({antialias: true, canvas});
 
-    //all passed in to create camera
+    //parameters are: fov, aspect, near, and far
     const camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.1, 10);
     camera.position.z = 2; //camera defaults to looking down -z axis and y axis up
 
