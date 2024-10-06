@@ -5,35 +5,28 @@ function main(){
     const canvas = document.querySelector("#c");
     const renderer = new THREE.WebGLRenderer({antialias: true, canvas});
 
-    //Time Object
-    const time = new Date();
-    console.log(time);
-
     //Set strings for day and night
     const dayTimeTexture = '/assets/dayTimeEarth.jpg';
     const nightTimeTexture = '/assets/nightTimeEarth.jpg';
 
     //parameters are: fov, aspect, near, and far
-    const camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.1, 10);
-    camera.position.z = 2; //camera defaults to looking down -z axis and y axis up
+    const camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.1, -1);
+    camera.position.z = 10000; //camera defaults to looking down -z axis and y axis up
 
     //scene graph (where we draw stuff)
     const scene = new THREE.Scene();
 
     //sets the 3d space of the sphere
-    const geometry = new THREE.SphereGeometry(1, 48, 24);
-    if (time.getHours() >= 6 && time.getHours() < 20){
-        var material = new THREE.MeshPhongMaterial({
-            map: new THREE.TextureLoader().load(dayTimeTexture),
-        });
-    } else {
-        var material = new THREE.MeshPhongMaterial({
-            map: new THREE.TextureLoader().load(nightTimeTexture),
-        });
-    }
+    const geometry = new THREE.SphereGeometry(6371.0088, 48, 24);
+    
+    var material = new THREE.MeshPhongMaterial({
+        map: new THREE.TextureLoader().load(new Date().getHours() >= 6 && new Date().getHours() <= 12 ? dayTimeTexture : nightTimeTexture),
+    });
+
     const sphere = new THREE.Mesh(geometry, material);
     sphere.position.x = 0;
     scene.add(sphere);
+    sphere.rotateZ(-0.40840704496);
 
     //sets directional light
     const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 3);
@@ -42,11 +35,15 @@ function main(){
 
     //sets ambient light
     const ambientLight = new THREE.AmbientLight(0x404040); // soft white light
-    scene.add(ambientLight);
+    if (new Date().getHours()  >= 6 && new Date().getHours() <= 20){
+        scene.add(ambientLight);
+    }
+    
 
     // Add OrbitControls
     const controls = new OrbitControls(camera, canvas);
     controls.update();
+    
 
     function resizeRendererToDisplaySize(renderer) {
         const canvas = renderer.domElement;
@@ -70,6 +67,10 @@ function main(){
         }
 
         controls.update();
+        if (new Date().getHours()  >= 6 && new Date().getHours() <= 20){ 
+            directionalLight.position.copy(camera.position);
+        }
+        
         renderer.render(scene, camera);
         requestAnimationFrame(render);
     }
