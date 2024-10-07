@@ -67,7 +67,7 @@ function main(){
         }
 
         controls.update();
-        if (new Date().getHours()  >= 6 && new Date().getHours() <= 20){ 
+        if (new Date().getHours()  <= 6 || new Date().getHours() >= 20){ 
             directionalLight.position.copy(camera.position);
         }
         
