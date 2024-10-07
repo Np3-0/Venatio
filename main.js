@@ -70,7 +70,8 @@ function main(){
         if (new Date().getHours()  <= 6 || new Date().getHours() >= 20){ 
             directionalLight.position.copy(camera.position);
         }
-        
+        if (camera.position.z < 7737.809374999994) camera.position.z = 7737.809374999994;
+        else if (camera.position.z > 500000) camera.position.z = 500000;
         renderer.render(scene, camera);
         requestAnimationFrame(render);
     }
