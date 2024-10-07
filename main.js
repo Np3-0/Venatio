@@ -17,7 +17,7 @@ function main(){
     const scene = new THREE.Scene();
 
     //sets the 3d space of the sphere
-    const geometry = new THREE.SphereGeometry(6371.0088, 48, 24);
+    const geometry = new THREE.SphereGeometry(6371.0088, 96, 240);
     
     var material = new THREE.MeshPhongMaterial({
         map: new THREE.TextureLoader().load(new Date().getHours() >= 6 && new Date().getHours() <= 12 ? dayTimeTexture : nightTimeTexture),
@@ -59,7 +59,8 @@ function main(){
     //render function without rotation
     function render(time){
         //time to seconds
-        time *= 0.001;
+        time += 0.001;
+
         if (resizeRendererToDisplaySize(renderer)) {
             const canvas = renderer.domElement;
             camera.aspect = canvas.clientWidth / canvas.clientHeight;
@@ -70,8 +71,8 @@ function main(){
         if (new Date().getHours()  <= 6 || new Date().getHours() >= 20){ 
             directionalLight.position.copy(camera.position);
         }
-        if (camera.position.z < 7737.809374999994) camera.position.z = 7737.809374999994;
-        else if (camera.position.z > 500000) camera.position.z = 500000;
+        //if (camera.position.z < 7737.809374999994) camera.position.z = 7737.809374999994;
+        //else if (camera.position.z > 500000) camera.position.z = 500000;
         renderer.render(scene, camera);
         requestAnimationFrame(render);
     }
