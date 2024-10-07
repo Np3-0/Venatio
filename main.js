@@ -42,6 +42,9 @@ function main(){
 
     // Add OrbitControls
     const controls = new OrbitControls(camera, canvas);
+    //added zoom params, but better.
+    controls.minDistance = 7500;
+    controls.maxDistance = 250000;
     controls.update();
     
 
@@ -61,12 +64,14 @@ function main(){
         //time to seconds
         time += 0.001;
 
+    
         if (resizeRendererToDisplaySize(renderer)) {
             const canvas = renderer.domElement;
             camera.aspect = canvas.clientWidth / canvas.clientHeight;
             camera.updateProjectionMatrix();
         }
-
+        console.log(controls.minDistance);
+        console.log(controls.maxDistance);
         controls.update();
         if (new Date().getHours()  <= 6 || new Date().getHours() >= 20){ 
             directionalLight.position.copy(camera.position);
