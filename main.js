@@ -11,7 +11,7 @@ function main(){
 
     //parameters are: fov, aspect, near, and far
     const camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.1, -1);
-    camera.position.z = 10000; //camera defaults to looking down -z axis and y axis up
+    camera.position.z = 12500; //camera defaults to looking down -z axis and y axis up
 
     //scene graph (where we draw stuff)
     const scene = new THREE.Scene();
@@ -20,7 +20,7 @@ function main(){
     const geometry = new THREE.SphereGeometry(6371.0088, 96, 240);
     
     var material = new THREE.MeshPhongMaterial({
-        map: new THREE.TextureLoader().load(new Date().getHours() >= 6 && new Date().getHours() <= 12 ? dayTimeTexture : nightTimeTexture),
+        map: new THREE.TextureLoader().load(new Date().getHours() >= 6 && new Date().getHours() <= 20 ? dayTimeTexture : nightTimeTexture),
     });
 
     const sphere = new THREE.Mesh(geometry, material);
@@ -64,7 +64,8 @@ function main(){
         //time to seconds
         time += 0.001;
 
-    
+        //this number gives a decent constant rotate, I dont know why. Maybe add a way to disable this in app?
+        sphere.rotateY(0.001); //approx 0.05 deg
         if (resizeRendererToDisplaySize(renderer)) {
             const canvas = renderer.domElement;
             camera.aspect = canvas.clientWidth / canvas.clientHeight;
@@ -76,8 +77,6 @@ function main(){
         if (new Date().getHours()  <= 6 || new Date().getHours() >= 20){ 
             directionalLight.position.copy(camera.position);
         }
-        //if (camera.position.z < 7737.809374999994) camera.position.z = 7737.809374999994;
-        //else if (camera.position.z > 500000) camera.position.z = 500000;
         renderer.render(scene, camera);
         requestAnimationFrame(render);
     }
