@@ -35,7 +35,6 @@ export default function starBackground({starNums = 500} = {}){
         let point = makeRandomStarPoint();
         const {coords, radius} = point; // destructure coords here
         positions.push(coords);
-        console.log(coords);
         const color = new THREE.Color().setHSL(0.6, 0.2, Math.random()); //gets star with random amount of brightness
         //add data to arrays
         vertices.push(coords.x, coords.y, coords.z);

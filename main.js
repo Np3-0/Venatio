@@ -21,28 +21,37 @@ function main(){
     const geometry = new THREE.SphereGeometry(6371.0088, 96, 240);
     
     var material = new THREE.MeshPhongMaterial({
-        map: new THREE.TextureLoader().load(new Date().getHours() >= 6 && new Date().getHours() <= 20 ? dayTimeTexture : nightTimeTexture),
+        map: new THREE.TextureLoader().load(dayTimeTexture),
+        
     });
+
+    //creating this group prevents clipping between the two textures for day/night cycle
+    const earthGrouping = new THREE.Group();
+    earthGrouping.rotateZ(-23.4 * Math.PI/180);
+    scene.add(earthGrouping);
 
     const sphere = new THREE.Mesh(geometry, material);
     sphere.position.x = 0;
-    scene.add(sphere);
-    sphere.rotateZ(-23.4 * Math.PI/180);
+
+    //add parts of the sphere to the earth group, instead of the scene
+    earthGrouping.add(sphere);
+    
+    //blending lets the night texture transition to/from day, without clipping
+    const lightsMat = new THREE.MeshBasicMaterial({
+        map: new THREE.TextureLoader().load(nightTimeTexture),
+        blending: THREE.AdditiveBlending,
+    });
+    const lightMesh = new THREE.Mesh(geometry, lightsMat)
+    earthGrouping.add(lightMesh);
 
     //adds stars to sky
     const stars = starBackground({starNums: 20000});
     scene.add(stars);
 
-    //sets directional light
-    const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 3);
-    directionalLight.position.set(-1, 2, 4);
-    scene.add(directionalLight);
-
-    //sets ambient light
-    const ambientLight = new THREE.AmbientLight(0x404040); // soft white light
-    if (new Date().getHours()  >= 6 && new Date().getHours() <= 20){
-        scene.add(ambientLight);
-    }
+    //sunlight, hopefully works better now
+    const sunlight = new THREE.DirectionalLight(0xFFFFFF);
+    scene.add(sunlight);
+    sunlight.position.set(-3.5,0.5,1.5)
     
 
     // Add OrbitControls
@@ -70,16 +79,14 @@ function main(){
         time += 0.001;
 
         //this number gives a decent constant rotate, I dont know why. Maybe add a way to disable this in app?
-        sphere.rotateY(0.001); //approx 0.05
+        sphere.rotateY(0.001); //approx 0.05 degrees
+        lightMesh.rotateY(0.001);
         if (resizeRendererToDisplaySize(renderer)) {
             const canvas = renderer.domElement;
             camera.aspect = canvas.clientWidth / canvas.clientHeight;
             camera.updateProjectionMatrix();
         }
         controls.update();
-        if (new Date().getHours()  <= 6 || new Date().getHours() >= 20){ 
-            directionalLight.position.copy(camera.position);
-        }
         renderer.render(scene, camera);
         requestAnimationFrame(render);
     }
