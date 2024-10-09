@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import starBackground from "./src/starBackground";
 
 function main(){
     const canvas = document.querySelector("#c");
@@ -26,7 +27,11 @@ function main(){
     const sphere = new THREE.Mesh(geometry, material);
     sphere.position.x = 0;
     scene.add(sphere);
-    sphere.rotateZ(-0.40840704496);
+    sphere.rotateZ(-23.4 * Math.PI/180);
+
+    //adds stars to sky
+    const stars = starBackground(20000);
+    scene.add(stars);
 
     //sets directional light
     const directionalLight = new THREE.DirectionalLight(0xFFFFFF, 3);
@@ -65,14 +70,12 @@ function main(){
         time += 0.001;
 
         //this number gives a decent constant rotate, I dont know why. Maybe add a way to disable this in app?
-        sphere.rotateY(0.001); //approx 0.05 deg
+        sphere.rotateY(0.001); //approx 0.05
         if (resizeRendererToDisplaySize(renderer)) {
             const canvas = renderer.domElement;
             camera.aspect = canvas.clientWidth / canvas.clientHeight;
             camera.updateProjectionMatrix();
         }
-        console.log(controls.minDistance);
-        console.log(controls.maxDistance);
         controls.update();
         if (new Date().getHours()  <= 6 || new Date().getHours() >= 20){ 
             directionalLight.position.copy(camera.position);
