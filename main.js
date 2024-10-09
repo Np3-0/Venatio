@@ -21,8 +21,7 @@ function main(){
     const geometry = new THREE.SphereGeometry(6371.0088, 96, 240);
     
     var material = new THREE.MeshPhongMaterial({
-        map: new THREE.TextureLoader().load(dayTimeTexture),
-        
+        map: new THREE.TextureLoader().load(dayTimeTexture), 
     });
 
     //creating this group prevents clipping between the two textures for day/night cycle
@@ -41,6 +40,7 @@ function main(){
         map: new THREE.TextureLoader().load(nightTimeTexture),
         blending: THREE.AdditiveBlending,
     });
+    
     const lightMesh = new THREE.Mesh(geometry, lightsMat)
     earthGrouping.add(lightMesh);
 

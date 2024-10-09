@@ -4,7 +4,7 @@ import CirclePng from "../assets/circle.png";
 //destructured so numStars can be passed if no values is given
 export default function starBackground({starNums = 500} = {}){
     function makeRandomStarPoint(){
-        //random value for radius
+        //random value for the radius
         const r = Math.floor(Math.random() * 200000) + 200000 ;
         const randAngleOne = Math.random();
         const randAngleTwo = Math.random();
