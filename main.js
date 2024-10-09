@@ -30,7 +30,7 @@ function main(){
     sphere.rotateZ(-23.4 * Math.PI/180);
 
     //adds stars to sky
-    const stars = starBackground(20000);
+    const stars = starBackground({starNums: 20000});
     scene.add(stars);
 
     //sets directional light
