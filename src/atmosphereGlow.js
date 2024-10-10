@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-export default function atmosphericGlow({rimHex=0x0088ff,  faceHex=0x000000} = {}){
+export default function atmosphericGlow({rimHex=0x57a5ff,  faceHex=0x000000} = {}){
     const uniforms = {
         rimColor: {value: new THREE.Color(rimHex)},
         faceColor: {value: new THREE.Color(faceHex)},
@@ -45,7 +45,7 @@ export default function atmosphericGlow({rimHex=0x0088ff,  faceHex=0x000000} = {
         uniforms: uniforms,
         vertexShader: vs,
         fragmentShader: fs,
-        transparent: true,
+        opacity: 0.9,
         blending: THREE.AdditiveBlending,
     });
     return atmoSphereMaterial;
