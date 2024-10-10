@@ -53,7 +53,7 @@ function main(){
     const atmoSphereMaterial = atmosphericGlow();
     const atmoSphere = new THREE.Mesh(geometry, atmoSphereMaterial);
     earthGrouping.add(atmoSphere);
-    atmoSphere.scale.setScalar(1.02);
+    atmoSphere.scale.setScalar(1.01);
 
     //sunlight, hopefully works better now
     const sunlight = new THREE.DirectionalLight(0xFFFFFF);

@@ -45,7 +45,7 @@ export default function atmosphericGlow({rimHex=0x57a5ff,  faceHex=0x000000} = {
         uniforms: uniforms,
         vertexShader: vs,
         fragmentShader: fs,
-        opacity: 0.9,
+        opacity: 0.1,
         blending: THREE.AdditiveBlending,
     });
     return atmoSphereMaterial;
