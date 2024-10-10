@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import starBackground from "./src/starBackground";
+import atmosphericGlow from "./src/atmosphereGlow";
 
 function main(){
     const canvas = document.querySelector("#c");
@@ -11,7 +12,7 @@ function main(){
     const nightTimeTexture = '/assets/nightTimeEarth.jpg';
 
     //parameters are: fov, aspect, near, and far
-    const camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 0.1, -1);
+    const camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 10, -1);
     camera.position.z = 12500; //camera defaults to looking down -z axis and y axis up
 
     //scene graph (where we draw stuff)
@@ -48,11 +49,16 @@ function main(){
     const stars = starBackground({starNums: 20000});
     scene.add(stars);
 
+    //atmospheric glow
+    const atmoSphereMaterial = atmosphericGlow();
+    const atmoSphere = new THREE.Mesh(geometry, atmoSphereMaterial);
+    earthGrouping.add(atmoSphere);
+    atmoSphere.scale.setScalar(1.02);
+
     //sunlight, hopefully works better now
     const sunlight = new THREE.DirectionalLight(0xFFFFFF);
     scene.add(sunlight);
     sunlight.position.set(-3.5,0.5,1.5)
-    
 
     // Add OrbitControls
     const controls = new OrbitControls(camera, canvas);
@@ -81,6 +87,7 @@ function main(){
         //this number gives a decent constant rotate, I dont know why. Maybe add a way to disable this in app?
         sphere.rotateY(0.001); //approx 0.05 degrees
         lightMesh.rotateY(0.001);
+        atmoSphere.rotateY(0.001);
         if (resizeRendererToDisplaySize(renderer)) {
             const canvas = renderer.domElement;
             camera.aspect = canvas.clientWidth / canvas.clientHeight;
