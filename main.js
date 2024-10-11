@@ -3,6 +3,9 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import starBackground from "./src/starBackground";
 import atmosphericGlow from "./src/atmosphereGlow";
 
+let camera;
+let earthGrouping;
+let controls;
 function main(){
     const canvas = document.querySelector("#c");
     const renderer = new THREE.WebGLRenderer({antialias: true, canvas});
@@ -12,7 +15,7 @@ function main(){
     const nightTimeTexture = '/assets/nightTimeEarth.jpg';
 
     //parameters are: fov, aspect, near, and far
-    const camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 10, -1);
+    camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 10, -1);
     camera.position.z = 12500; //camera defaults to looking down -z axis and y axis up
 
     //scene graph (where we draw stuff)
@@ -26,7 +29,7 @@ function main(){
     });
 
     //creating this group prevents clipping between the two textures for day/night cycle
-    const earthGrouping = new THREE.Group();
+    earthGrouping = new THREE.Group();
     earthGrouping.rotateZ(-23.4 * Math.PI/180);
     scene.add(earthGrouping);
 
@@ -61,7 +64,7 @@ function main(){
     sunlight.position.set(-3.5,0.5,1.5)
 
     // Add OrbitControls
-    const controls = new OrbitControls(camera, canvas);
+    controls = new OrbitControls(camera, canvas);
     //added zoom params, but better.
     controls.minDistance = 7500;
     controls.maxDistance = 250000;
@@ -78,7 +81,7 @@ function main(){
         }
         return needResize;
     }
-
+    console.log(earthGrouping.position);
     //render function without rotation
     function render(time){
         //time to seconds
@@ -103,3 +106,14 @@ function main(){
 }
 
 main();
+
+
+const resetButton = document.getElementById("box");
+
+resetButton.addEventListener("click", function(){
+    console.log("resetting");
+    
+    camera.position.set(0,0.0000000000007654042494670957,12500);
+    controls.target.set(0, 0, 0); // Reset the target of the controls
+    controls.update();
+});

@@ -21,3 +21,9 @@ html, body, #c {
    right: 0;
    background-color: aquamarine;
 }
+
+#box p {
+   font-size: 2vmin;
+   text-align: center;
+   margin-top: 2.5vmin;
+}
