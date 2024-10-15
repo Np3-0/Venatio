@@ -1,3 +1,12 @@
+//TO DO:
+// - Remove panning, you can use it to clip into earth and its not needed
+// - Fix atmosphere glow, its literally FLAT blue, maybe add a gradient?
+// - Clouds only wrap around the part of earth that is being flashed with light, fix it maybe
+// - We still need to work on a way to add blender objects in here
+// - Does the earth look a little.. cartoony? Maybe make it a little darker? Mano and I were looking at it and it looks blown out.
+
+// 10/15/2024 - I JUST ADDED 16K tEXTURES!! but sadly we cant use it because iphones are so shitty that they cant render it lol. 
+// - The textures will still remain in assets though, maybe we can use it one day.
 import * as THREE from "three";
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import starBackground from "./src/starBackground";
@@ -48,6 +57,22 @@ function main(){
     const lightMesh = new THREE.Mesh(geometry, lightsMat)
     earthGrouping.add(lightMesh);
 
+    //i like clouds :)
+    const cloudsMat = new THREE.MeshStandardMaterial({
+        //add the texture (Loader.load did NOT work)
+        map: new THREE.TextureLoader().load("/assets/clouds.jpg"),
+        //below is your brightness. i dunno why 3js makes it color
+        color: new THREE.Color(0.1, 0.1, 0.1),
+        // TRANSPARENCY BREAKS CLOUDS!!! DONT ENABLE
+        // transparent: true,
+        // opacity: 0.8,
+        blending: THREE.AdditiveBlending,
+      });
+
+      //add that into the earth group for easy rotation
+      const cloudsMesh = new THREE.Mesh(geometry, cloudsMat);
+      cloudsMesh.scale.setScalar(1.003);
+      earthGrouping.add(cloudsMesh);
     //adds stars to sky
     const stars = starBackground({starNums: 20000});
     scene.add(stars);
@@ -69,6 +94,7 @@ function main(){
     controls.minDistance = 7500;
     controls.maxDistance = 250000;
     controls.update();
+
     
 
     function resizeRendererToDisplaySize(renderer) {
@@ -88,9 +114,12 @@ function main(){
         time += 0.001;
 
         //this number gives a decent constant rotate, I dont know why. Maybe add a way to disable this in app?
-        sphere.rotateY(0.001); //approx 0.05 degrees
-        lightMesh.rotateY(0.001);
-        atmoSphere.rotateY(0.001);
+        //its time we make the rotation a FLOAT!!!! that way we dont need to change like 15 values
+        let earthRotation = 0.001;
+        sphere.rotateY(earthRotation); //approx 0.05 degrees
+        lightMesh.rotateY(earthRotation);
+        atmoSphere.rotateY(earthRotation);
+        cloudsMesh.rotateY(earthRotation);
         if (resizeRendererToDisplaySize(renderer)) {
             const canvas = renderer.domElement;
             camera.aspect = canvas.clientWidth / canvas.clientHeight;
@@ -108,11 +137,13 @@ function main(){
 main();
 
 
+//reset button
 const resetButton = document.getElementById("box");
 
 resetButton.addEventListener("click", function(){
     console.log("resetting");
-    
+    //you should probably also make it so that it resets the rotation of earth too instead of just the camera
+    //will add later if I feel like it
     camera.position.set(0,0.0000000000007654042494670957,12500);
     controls.target.set(0, 0, 0); // Reset the target of the controls
     controls.update();
