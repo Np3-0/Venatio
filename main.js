@@ -116,10 +116,11 @@ function main(){
         //this number gives a decent constant rotate, I dont know why. Maybe add a way to disable this in app?
         //its time we make the rotation a FLOAT!!!! that way we dont need to change like 15 values
         let earthRotation = 0.001;
+        let cloudRotation = 0.0015;
         sphere.rotateY(earthRotation); //approx 0.05 degrees
         lightMesh.rotateY(earthRotation);
         atmoSphere.rotateY(earthRotation);
-        cloudsMesh.rotateY(earthRotation);
+        cloudsMesh.rotateY(cloudRotation);
         if (resizeRendererToDisplaySize(renderer)) {
             const canvas = renderer.domElement;
             camera.aspect = canvas.clientWidth / canvas.clientHeight;
