@@ -34,7 +34,7 @@ function main(){
     const geometry = new THREE.SphereGeometry(6371.0088, 96, 240);
     
     var material = new THREE.MeshPhongMaterial({
-        map: new THREE.TextureLoader().load(dayTimeTexture), 
+        map: new THREE.TextureLoader().load(dayTimeTexture),
     });
 
     //creating this group prevents clipping between the two textures for day/night cycle
@@ -48,13 +48,26 @@ function main(){
     //add parts of the sphere to the earth group, instead of the scene
     earthGrouping.add(sphere);
     
-    //blending lets the night texture transition to/from day, without clipping
-    const lightsMat = new THREE.MeshBasicMaterial({
-        map: new THREE.TextureLoader().load(nightTimeTexture),
-        blending: THREE.AdditiveBlending,
+    //values needed for the shading: texture and where the light is from
+    const dayTexture = new THREE.TextureLoader().load(dayTimeTexture);
+    const nightTexture = new THREE.TextureLoader().load(nightTimeTexture);
+    const lightDirection = new THREE.Vector3(-3.5, 0.5, 1.5).normalize();
+    //changed to shaderMaterial for the shading
+    const nightShader = new THREE.ShaderMaterial({
+        //uniforms are just the data that the shader uses we defined earlier
+        uniforms: {
+            dayTexture: {value: dayTexture},
+            nightTexture: {value: nightTexture},
+            lightDirection: {value: lightDirection},
+            resolution: {value: new THREE.Vector2(window.innerWidth, window.innerHeight)},
+        },
+        vertexShader: document.getElementById("earthVertexShader").textContent,
+        fragmentShader: document.getElementById("earthFragmentShader").textContent,
+        transparent: true,
+        blending: THREE.NormalBlending,
     });
     
-    const lightMesh = new THREE.Mesh(geometry, lightsMat)
+    const lightMesh = new THREE.Mesh(geometry, nightShader)
     earthGrouping.add(lightMesh);
 
     //i like clouds :)
@@ -107,7 +120,6 @@ function main(){
         }
         return needResize;
     }
-    console.log(earthGrouping.position);
     //render function without rotation
     function render(time){
         //time to seconds
