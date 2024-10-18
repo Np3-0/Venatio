@@ -1,15 +1,57 @@
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8">
-		<title>Venatio</title>
-		<link rel="stylesheet" href="./style.css"/>
-	</head>
-	<body>
-		<script type="module" src="/main.js"></script>
-		
+    <head>
+        <meta charset="utf-8">
+        <title>Venatio</title>
+        <link rel="stylesheet" href="./style.css"/>
+    </head>
+    <body>
+        <!-- script for our custom earth shading so our king pranav is happy-->
+        <!-- shaders uses glsl, basically opengl's way of shading that Three.js supports-->
+        <script id="earthVertexShader" type="x-shader/x-vertex">
+            //varying means the value is passed in the both the vertex and fragment shader, so a vector3 is passed to the fragment shader
+            varying vec3 varyNormal;
+            varying vec3 varyPosition;
+            varying vec2 varyUv;
+            
+
+            void main() {
+                //basically prevents the model from being distorted, when orbitControls are used
+                varyNormal = normalize(normalMatrix * normal);
+
+                //position of the vertex in the world space (where the earth is)
+                varyPosition = vec3(modelViewMatrix * vec4(position, 1.0));
+                varyUv = uv;
+                //gets the final position for the rendering
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+            }
+        </script>
+        <!-- fragment shader deals with colors, while vertex is for points on the 3d shape-->
+        <script id="earthFragmentShader" type="x-shader/x-fragment">
+            uniform sampler2D dayTexture;
+            uniform sampler2D nightTexture;
+            uniform vec3 lightDirection;
+            uniform vec2 resolution;
+            varying vec3 varyNormal;
+            varying vec3 varyPosition;
+            varying vec2 varyUv;
+        
+            void main() {
+                float dotData = dot(varyNormal, lightDirection);
+                //takes info abt the light and the normal of the vertex to calculate the brightness of the vertex
+                float blendFactor = smoothstep(-0.35, 0.35, dotData); 
+
+                //gets brightness of the current vertex
+                vec4 dayColor = texture2D(dayTexture, varyUv);
+                vec4 nightColor = texture2D(nightTexture, varyUv);
+
+                // Blend day and night textures
+                gl_FragColor = mix(nightColor, dayColor, blendFactor);
+            }
+        </script>
+        <script type="module" src="/main.js"></script>
+        
         <canvas id="c"></canvas>
-		<div id="box"><p>Reset</p></div>
-		
-	</body>
+        <div id="box"><p>Reset</p></div>
+    </body>
 </html>
