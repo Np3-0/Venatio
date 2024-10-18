@@ -43,15 +43,15 @@ function main(){
     scene.add(earthGrouping);
 
     const sphere = new THREE.Mesh(geometry, material);
-    sphere.position.x = 0;
+    //sphere.position.x = 0;
 
     //add parts of the sphere to the earth group, instead of the scene
-    earthGrouping.add(sphere);
+    //earthGrouping.add(sphere);
     
     //values needed for the shading: texture and where the light is from
     const dayTexture = new THREE.TextureLoader().load(dayTimeTexture);
     const nightTexture = new THREE.TextureLoader().load(nightTimeTexture);
-    const lightDirection = new THREE.Vector3(-3.5, 0.5, 1.5).normalize();
+    const lightDirection = new THREE.Vector3(-1, 0, 0).normalize();
     //changed to shaderMaterial for the shading
     const nightShader = new THREE.ShaderMaterial({
         //uniforms are just the data that the shader uses we defined earlier
@@ -63,11 +63,11 @@ function main(){
         },
         vertexShader: document.getElementById("earthVertexShader").textContent,
         fragmentShader: document.getElementById("earthFragmentShader").textContent,
-        transparent: true,
-        blending: THREE.NormalBlending,
+        //transparent: true,
+        blending: THREE.NormalBlending,   
     });
     
-    const lightMesh = new THREE.Mesh(geometry, nightShader)
+    const lightMesh = new THREE.Mesh(geometry, nightShader);
     earthGrouping.add(lightMesh);
 
     //i like clouds :)
@@ -80,14 +80,15 @@ function main(){
         // transparent: true,
         // opacity: 0.8,
         blending: THREE.AdditiveBlending,
-      });
+    });
 
-      //add that into the earth group for easy rotation
-      const cloudsMesh = new THREE.Mesh(geometry, cloudsMat);
-      cloudsMesh.scale.setScalar(1.003);
-      earthGrouping.add(cloudsMesh);
+    //add that into the earth group for easy rotation
+    const cloudsMesh = new THREE.Mesh(geometry, cloudsMat);
+    cloudsMesh.scale.setScalar(1.003);
+    earthGrouping.add(cloudsMesh);
+
     //adds stars to sky
-    const stars = starBackground({starNums: 20000});
+    const stars = starBackground( { starNums: 20000 } );
     scene.add(stars);
 
     //atmospheric glow
@@ -100,6 +101,10 @@ function main(){
     const sunlight = new THREE.DirectionalLight(0xFFFFFF);
     scene.add(sunlight);
     sunlight.position.set(-3.5,0.5,1.5)
+
+    const sunlight2 = new THREE.DirectionalLight(0xFFFFFF);
+    scene.add(sunlight2);
+    sunlight2.position.set(3.5,-0.5,-1.5)
 
     // Add OrbitControls
     controls = new OrbitControls(camera, canvas);
@@ -149,7 +154,6 @@ function main(){
 
 main();
 
-
 //reset button
 const resetButton = document.getElementById("box");
 
@@ -157,7 +161,7 @@ resetButton.addEventListener("click", function(){
     console.log("resetting");
     //you should probably also make it so that it resets the rotation of earth too instead of just the camera
     //will add later if I feel like it
-    camera.position.set(0,0.0000000000007654042494670957,12500);
+    camera.position.set(0, 0, 12500);
     controls.target.set(0, 0, 0); // Reset the target of the controls
     controls.update();
 });
