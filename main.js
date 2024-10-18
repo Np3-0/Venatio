@@ -111,6 +111,7 @@ function main(){
     //added zoom params, but better.
     controls.minDistance = 7500;
     controls.maxDistance = 250000;
+    controls.minPanX = -10000;
     controls.update();
 
     
@@ -129,7 +130,7 @@ function main(){
     function render(time){
         //time to seconds
         time += 0.001;
-
+        console.log(camera.position);
         //this number gives a decent constant rotate, I dont know why. Maybe add a way to disable this in app?
         //its time we make the rotation a FLOAT!!!! that way we dont need to change like 15 values
         let earthRotation = 0.001;
@@ -155,7 +156,7 @@ function main(){
 main();
 
 //reset button
-const resetButton = document.getElementById("box");
+const resetButton = document.getElementById("boundary");
 
 resetButton.addEventListener("click", function(){
     console.log("resetting");

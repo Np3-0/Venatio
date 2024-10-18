@@ -52,6 +52,23 @@
         <script type="module" src="/main.js"></script>
         
         <canvas id="c"></canvas>
-        <div id="box"><p>Reset</p></div>
+        <div id="menu-container">
+            <div id="tab" onclick="toggleMenu()">&#9776; Menu</div>
+            <div id="boundary">
+                <h3 id="controlMenuTitle">Control Menu</h3>
+                <div class="button-container">
+                    <button>Reset</button>
+                    <button>Button 2</button>
+                    <button>Button 3</button>
+                    <button>Button 4</button>
+                </div>
+            </div>
+        </div>
+        <script>
+            function toggleMenu() {
+                const menu = document.getElementById('boundary');
+                menu.classList.toggle('open');
+            }
+        </script>
     </body>
 </html>
