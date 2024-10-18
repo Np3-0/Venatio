@@ -111,7 +111,20 @@ function main(){
     //added zoom params, but better.
     controls.minDistance = 7500;
     controls.maxDistance = 250000;
-    controls.minPanX = -10000;
+
+    //turns out we have to make our own panning!!!!!!
+    //our singular panning limit 
+    const panningLimit = 10000
+    //catches any change
+    controls.addEventListener("change", () => {
+        //gets camera pos
+        const cameraOffset = controls.target.clone().sub(camera.position);
+        //clamps x/y pan to the negative and pos versions of the limit
+        controls.target.clampScalar(-panningLimit, panningLimit);
+        //sets the camera position to the target minus the offset
+        camera.position.copy(controls.target).sub(cameraOffset);
+    });
+
     controls.update();
 
     
