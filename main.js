@@ -109,7 +109,7 @@ function main(){
     // Add OrbitControls
     controls = new OrbitControls(camera, canvas);
     //added zoom params, but better.
-    controls.minDistance = 7500;
+    controls.minDistance = 10000;
     controls.maxDistance = 250000;
 
     //turns out we have to make our own panning!!!!!!
@@ -124,6 +124,8 @@ function main(){
         //sets the camera position to the target minus the offset
         camera.position.copy(controls.target).sub(cameraOffset);
     });
+
+   
 
     controls.update();
 
@@ -144,6 +146,7 @@ function main(){
         //time to seconds
         time += 0.001;
         console.log(camera.position);
+        
         //this number gives a decent constant rotate, I dont know why. Maybe add a way to disable this in app?
         //its time we make the rotation a FLOAT!!!! that way we dont need to change like 15 values
         let earthRotation = 0.001;
