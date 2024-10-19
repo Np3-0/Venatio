@@ -7,13 +7,12 @@
     </head>
     <body>
         <!-- script for our custom earth shading so our king pranav is happy-->
-        <!-- shaders uses glsl, basically opengl's way of shading that Three.js supports-->
+        <!-- shaders uses glsl, basically opengl's way of shading that Three.js supports, which NOBODY KNOWS-->
         <script id="earthVertexShader" type="x-shader/x-vertex">
             //varying means the value is passed in the both the vertex and fragment shader, so a vector3 is passed to the fragment shader
             varying vec3 varyNormal;
             varying vec3 varyPosition;
             varying vec2 varyUv;
-            
 
             void main() {
                 //basically prevents the model from being distorted, when orbitControls are used
@@ -45,7 +44,7 @@
                 vec4 dayColor = texture2D(dayTexture, varyUv);
                 vec4 nightColor = texture2D(nightTexture, varyUv);
 
-                // Blend day and night textures
+                //blends the textures, so it looks muy bueno
                 gl_FragColor = mix(nightColor, dayColor, blendFactor);
             }
         </script>
@@ -57,10 +56,10 @@
             <div id="boundary">
                 <h3 id="controlMenuTitle">Control Menu</h3>
                 <div class="button-container">
-                    <button>Reset</button>
-                    <button>Button 2</button>
-                    <button>Button 3</button>
-                    <button>Button 4</button>
+                    <button id="earthButton">Go to Earth</button>
+                    <button id="moonButton">Go to Moon</button>
+                    <button id="button3">Button 3</button>
+                    <button id="button4">Button 4</button>
                 </div>
             </div>
         </div>

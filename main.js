@@ -1,9 +1,7 @@
 //TO DO:
-// - Remove panning, you can use it to clip into earth and its not needed
-// - Fix atmosphere glow, its literally FLAT blue, maybe add a gradient?
-// - Clouds only wrap around the part of earth that is being flashed with light, fix it maybe
 // - We still need to work on a way to add blender objects in here
 // - Does the earth look a little.. cartoony? Maybe make it a little darker? Mano and I were looking at it and it looks blown out.
+// - Finish moon lighting, rotation maybe, depends on how the data works.
 
 // 10/15/2024 - I JUST ADDED 16K tEXTURES!! but sadly we cant use it because iphones are so shitty that they cant render it lol. 
 // - The textures will still remain in assets though, maybe we can use it one day.
@@ -43,7 +41,7 @@ function main(){
     scene.add(earthGrouping);
 
     const sphere = new THREE.Mesh(geometry, material);
-    //sphere.position.x = 0;
+    sphere.position.set(0, 0, 0);
 
     //add parts of the sphere to the earth group, instead of the scene
     //earthGrouping.add(sphere);
@@ -104,7 +102,33 @@ function main(){
 
     const sunlight2 = new THREE.DirectionalLight(0xFFFFFF);
     scene.add(sunlight2);
-    sunlight2.position.set(3.5,-0.5,-1.5)
+    sunlight2.position.set(3.5,-0.5,-1.5);
+
+    //MOON TiME!!!!
+
+    //texture
+    const moonTexture = "./assets/moonTexture.jpg";
+    const moonGeometry = new THREE.SphereGeometry(1737.4, 96, 240);
+    let moonMaterial = new THREE.MeshPhongMaterial({
+        map: new THREE.TextureLoader().load(moonTexture),
+    });
+    const moon = new THREE.Mesh(moonGeometry, moonMaterial);
+    scene.add(moon);
+    moon.rotateZ(1.5 * Math.PI/180);
+    moon.position.set(38440, 0, 0);
+
+    //for some reason all these lights are needed to not have random shadows on the moon, this will change when we add dark side of moon.
+    const moonLight = new THREE.DirectionalLight(0xFFFFFF);
+    scene.add(moonLight);
+    moonLight.position.set(38440, 0, 12500);
+
+    const ambientMoonLight = new THREE.PointLight(0xFFFFFF, 0.5);
+    ambientMoonLight.position.set(38440, 0, 0);
+    scene.add(ambientMoonLight);
+
+    const moonHemiLight = new THREE.HemisphereLight(0xFFFFFF, 0x444444, 1);
+    moonHemiLight.position.set(38440, 0, 0);
+    scene.add(moonHemiLight);
 
     // Add OrbitControls
     controls = new OrbitControls(camera, canvas);
@@ -114,7 +138,7 @@ function main(){
 
     //turns out we have to make our own panning!!!!!!
     //our singular panning limit 
-    const panningLimit = 10000
+    const panningLimit = 50000;
     //catches any change
     controls.addEventListener("change", () => {
         //gets camera pos
@@ -124,12 +148,7 @@ function main(){
         //sets the camera position to the target minus the offset
         camera.position.copy(controls.target).sub(cameraOffset);
     });
-
-   
-
     controls.update();
-
-    
 
     function resizeRendererToDisplaySize(renderer) {
         const canvas = renderer.domElement;
@@ -145,8 +164,7 @@ function main(){
     function render(time){
         //time to seconds
         time += 0.001;
-        console.log(camera.position);
-        
+                
         //this number gives a decent constant rotate, I dont know why. Maybe add a way to disable this in app?
         //its time we make the rotation a FLOAT!!!! that way we dont need to change like 15 values
         let earthRotation = 0.001;
@@ -164,21 +182,27 @@ function main(){
         renderer.render(scene, camera);
         requestAnimationFrame(render);
     }
-
-    //rerenders
     requestAnimationFrame(render);
 }
 
 main();
 
-//reset button
-const resetButton = document.getElementById("boundary");
+//gets the button being clicked and sets the camera/target better than doing this crap 4 times
+//object with name of button as object, and camerapos and targetpos as arrays
+const buttonInfo = {
+    earthButton: {
+        cameraPos: [0, 0, 12500],
+        targetPos: [0, 0, 0],
+    },
+    moonButton: {
+        cameraPos: [38440, 0, 12500],
+        targetPos: [38440, 0, 0],
+    },
+}
 
-resetButton.addEventListener("click", function(){
-    console.log("resetting");
-    //you should probably also make it so that it resets the rotation of earth too instead of just the camera
-    //will add later if I feel like it
-    camera.position.set(0, 0, 12500);
-    controls.target.set(0, 0, 0); // Reset the target of the controls
+document.querySelectorAll(".button-container button").forEach(button => button.addEventListener("click", () => {
+    const { cameraPos, targetPos } = buttonInfo[button.id];
+    camera.position.set(...cameraPos);
+    controls.target.set(...targetPos); // Reset the target of the controls
     controls.update();
-});
+}));
