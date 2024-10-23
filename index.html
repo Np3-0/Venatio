@@ -8,7 +8,9 @@
     <body>
         <!-- script for our custom earth shading so our king pranav is happy-->
         <!-- shaders uses glsl, basically opengl's way of shading that Three.js supports, which NOBODY KNOWS-->
-        <script id="earthVertexShader" type="x-shader/x-vertex">
+
+        <!-- we can use this for both moon and earth less GLSL thank jesus christ-->
+        <script id="vertexShader" type="x-shader/x-vertex">
             //varying means the value is passed in the both the vertex and fragment shader, so a vector3 is passed to the fragment shader
             varying vec3 varyNormal;
             varying vec3 varyPosition;
@@ -46,6 +48,29 @@
 
                 //blends the textures, so it looks muy bueno
                 gl_FragColor = mix(nightColor, dayColor, blendFactor);
+            }
+        </script>
+            
+        <script id="moonFragmentShader" type="x-shader/x-fragment">
+            uniform sampler2D moonTexture;
+            uniform vec3 lightDirection;
+
+            varying vec2 varyUv;
+            varying vec3 varyNormal;
+            varying vec3 varyPosition;
+            void main(){
+                vec4 textureColor = texture2D(moonTexture, varyUv);
+                float dotData = dot(varyNormal, normalize(lightDirection));
+
+                float lightIntensity = step(0.0, dotData);
+
+                float transition = smoothstep(-0.1, 0.1, dotData);
+
+                vec3 darkSide = textureColor.rgb * 0.5;
+                vec3 lightSide = textureColor.rgb;
+                vec3 finalColor = mix(darkSide, lightSide, transition);
+
+                gl_FragColor = vec4(finalColor, 1.0);
             }
         </script>
         <script type="module" src="/main.js"></script>

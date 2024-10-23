@@ -59,7 +59,7 @@ function main(){
             lightDirection: {value: lightDirection},
             resolution: {value: new THREE.Vector2(window.innerWidth, window.innerHeight)},
         },
-        vertexShader: document.getElementById("earthVertexShader").textContent,
+        vertexShader: document.getElementById("vertexShader").textContent,
         fragmentShader: document.getElementById("earthFragmentShader").textContent,
         //transparent: true,
         blending: THREE.NormalBlending,   
@@ -88,7 +88,7 @@ function main(){
     //adds stars to sky
     const stars = starBackground( { starNums: 20000 } );
     scene.add(stars);
-
+    
     //atmospheric glow
     const atmoSphereMaterial = atmosphericGlow();
     const atmoSphere = new THREE.Mesh(geometry, atmoSphereMaterial);
@@ -109,26 +109,23 @@ function main(){
     //texture
     const moonTexture = "./assets/moonTexture.jpg";
     const moonGeometry = new THREE.SphereGeometry(1737.4, 96, 240);
-    let moonMaterial = new THREE.MeshPhongMaterial({
-        map: new THREE.TextureLoader().load(moonTexture),
-    });
+    
+    const moonMaterial = new THREE.ShaderMaterial({
+        uniforms: {
+            moonTexture: { value: new THREE.TextureLoader().load(moonTexture) },
+            lightDirection: { value: new THREE.Vector3(-1,0,0).normalize() },
+        },
+        vertexShader: document.getElementById("vertexShader").textContent,
+        fragmentShader: document.getElementById("moonFragmentShader").textContent,
+    })
+
     const moon = new THREE.Mesh(moonGeometry, moonMaterial);
     scene.add(moon);
     moon.rotateZ(1.5 * Math.PI/180);
     moon.position.set(38440, 0, 0);
 
     //for some reason all these lights are needed to not have random shadows on the moon, this will change when we add dark side of moon.
-    const moonLight = new THREE.DirectionalLight(0xFFFFFF);
-    scene.add(moonLight);
-    moonLight.position.set(38440, 0, 12500);
 
-    const ambientMoonLight = new THREE.PointLight(0xFFFFFF, 0.5);
-    ambientMoonLight.position.set(38440, 0, 0);
-    scene.add(ambientMoonLight);
-
-    const moonHemiLight = new THREE.HemisphereLight(0xFFFFFF, 0x444444, 1);
-    moonHemiLight.position.set(38440, 0, 0);
-    scene.add(moonHemiLight);
 
     // Add OrbitControls
     controls = new OrbitControls(camera, canvas);

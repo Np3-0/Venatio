@@ -1,13 +1,14 @@
 import * as THREE from "three";
-import CirclePng from "../assets/circle.png";
 
 //destructured so numStars can be passed if no values is given
 export default function starBackground({starNums = 500} = {}){
+
+    const CirclePng = "./assets/circle.png";
+
     function makeRandomStarPoint(){
         //random value for the radius
         const r = Math.floor(Math.random() * 200000) + 200000 ;
         const randAngleOne = Math.random();
-        const randAngleTwo = Math.random();
 
         //gets values for angles of the sphere, and converts to radians
         const theta = 2 * Math.PI * randAngleOne;
@@ -33,7 +34,7 @@ export default function starBackground({starNums = 500} = {}){
     for (let i = 0; i < starNums; i++){
         //get random point for stars, and destructured data from it
         let point = makeRandomStarPoint();
-        const {coords, radius} = point; // destructure coords here
+        const { coords } = point; // destructure coords here
         positions.push(coords);
         const color = new THREE.Color().setHSL(0.6, 0.2, Math.random()); //gets star with random amount of brightness
         //add data to arrays
