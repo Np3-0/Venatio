@@ -16,7 +16,7 @@ let controls;
 function main(){
     const canvas = document.querySelector("#c");
     const renderer = new THREE.WebGLRenderer({antialias: true, canvas});
-
+    
     //Set strings for day and night
     const dayTimeTexture = '/assets/dayTimeEarth.jpg';
     const nightTimeTexture = '/assets/nightTimeEarth.jpg';
@@ -27,9 +27,9 @@ function main(){
 
     //scene graph (where we draw stuff)
     const scene = new THREE.Scene();
-
+    const earthRadius = 6371.0088;
     //sets the 3d space of the sphere
-    const geometry = new THREE.SphereGeometry(6371.0088, 96, 240);
+    const geometry = new THREE.SphereGeometry(earthRadius, 96, 240);
     
     var material = new THREE.MeshPhongMaterial({
         map: new THREE.TextureLoader().load(dayTimeTexture),
@@ -39,24 +39,29 @@ function main(){
     earthGrouping = new THREE.Group();
     earthGrouping.rotateZ(-23.4 * Math.PI/180);
     scene.add(earthGrouping);
-
+    
     const sphere = new THREE.Mesh(geometry, material);
     sphere.position.set(0, 0, 0);
 
+    const lightDirection = new THREE.Vector3(-1000000, 0, 0);
+
     //add parts of the sphere to the earth group, instead of the scene
     //earthGrouping.add(sphere);
+
+    // vec3(directionofcamera-directionoflight)
     
+
     //values needed for the shading: texture and where the light is from
     const dayTexture = new THREE.TextureLoader().load(dayTimeTexture);
     const nightTexture = new THREE.TextureLoader().load(nightTimeTexture);
-    const lightDirection = new THREE.Vector3(-1, 0, 0).normalize();
+    const earthLightDirection = lightDirection.clone().applyQuaternion(camera.quaternion.clone().invert()).normalize();
     //changed to shaderMaterial for the shading
     const nightShader = new THREE.ShaderMaterial({
         //uniforms are just the data that the shader uses we defined earlier
         uniforms: {
             dayTexture: {value: dayTexture},
             nightTexture: {value: nightTexture},
-            lightDirection: {value: lightDirection},
+            lightDirection: {value: earthLightDirection},
             resolution: {value: new THREE.Vector2(window.innerWidth, window.innerHeight)},
         },
         vertexShader: document.getElementById("vertexShader").textContent,
@@ -96,14 +101,8 @@ function main(){
     atmoSphere.scale.setScalar(1.01);
 
     //sunlight, hopefully works better now
-    const sunlight = new THREE.DirectionalLight(0xFFFFFF);
+    const sunlight = new THREE.AmbientLight(0xFFFFFF, 1);
     scene.add(sunlight);
-    sunlight.position.set(-3.5,0.5,1.5)
-
-    const sunlight2 = new THREE.DirectionalLight(0xFFFFFF);
-    scene.add(sunlight2);
-    sunlight2.position.set(3.5,-0.5,-1.5);
-
     //MOON TiME!!!!
 
     //texture
@@ -118,14 +117,22 @@ function main(){
         vertexShader: document.getElementById("vertexShader").textContent,
         fragmentShader: document.getElementById("moonFragmentShader").textContent,
     })
-
+    
     const moon = new THREE.Mesh(moonGeometry, moonMaterial);
     scene.add(moon);
+    moon.rotateY(Math.PI);
     moon.rotateZ(1.5 * Math.PI/180);
     moon.position.set(38440, 0, 0);
 
-    //for some reason all these lights are needed to not have random shadows on the moon, this will change when we add dark side of moon.
+    
+    const sataliteGeometry = new THREE.SphereGeometry(100, 96, 240);
+    const sataliteMat = new THREE.MeshBasicMaterial({
+        color: 0x00FF00,
+    });
 
+    const satalite = new THREE.Mesh(sataliteGeometry, sataliteMat);
+    scene.add(satalite);
+    satalite.position.set(0, 0, earthRadius+50);
 
     // Add OrbitControls
     controls = new OrbitControls(camera, canvas);
@@ -159,6 +166,7 @@ function main(){
     }
     //render function without rotation
     function render(time){
+        console.log(camera);
         //time to seconds
         time += 0.001;
                 
