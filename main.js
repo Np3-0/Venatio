@@ -43,7 +43,7 @@ function main(){
     const sphere = new THREE.Mesh(geometry, material);
     sphere.position.set(0, 0, 0);
 
-    const lightDirection = new THREE.Vector3(-1000000, 0, 0);
+    const lightDirection = new THREE.Vector3(-1000000, 0, 0).normalize();
 
     //add parts of the sphere to the earth group, instead of the scene
     //earthGrouping.add(sphere);
@@ -64,7 +64,7 @@ function main(){
             lightDirection: {value: earthLightDirection},
             resolution: {value: new THREE.Vector2(window.innerWidth, window.innerHeight)},
         },
-        vertexShader: document.getElementById("vertexShader").textContent,
+        vertexShader: document.getElementById("earthVertexShader").textContent,
         fragmentShader: document.getElementById("earthFragmentShader").textContent,
         //transparent: true,
         blending: THREE.NormalBlending,   
@@ -108,13 +108,12 @@ function main(){
     //texture
     const moonTexture = "./assets/moonTexture.jpg";
     const moonGeometry = new THREE.SphereGeometry(1737.4, 96, 240);
-    
     const moonMaterial = new THREE.ShaderMaterial({
         uniforms: {
             moonTexture: { value: new THREE.TextureLoader().load(moonTexture) },
-            lightDirection: { value: new THREE.Vector3(-1,0,0).normalize() },
+            lightDirection: { value: new THREE.Vector3(-1, 0, 0).normalize() },
         },
-        vertexShader: document.getElementById("vertexShader").textContent,
+        vertexShader: document.getElementById("moonVertexShader").textContent,
         fragmentShader: document.getElementById("moonFragmentShader").textContent,
     })
     
@@ -178,6 +177,11 @@ function main(){
         lightMesh.rotateY(earthRotation);
         atmoSphere.rotateY(earthRotation);
         cloudsMesh.rotateY(cloudRotation);
+
+        const worldLightDir = new THREE.Vector3(-1, 0, 0);
+        moon.updateMatrixWorld();
+        moonMaterial.uniforms.lightDirection.value.set(-1, 0, 0).normalize();
+
         if (resizeRendererToDisplaySize(renderer)) {
             const canvas = renderer.domElement;
             camera.aspect = canvas.clientWidth / canvas.clientHeight;

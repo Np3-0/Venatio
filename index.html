@@ -1,16 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="utf-8">
-        <title>Venatio</title>
-        <link rel="stylesheet" href="./style.css"/>
-    </head>
-    <body>
-        <!-- script for our custom earth shading so our king pranav is happy-->
-        <!-- shaders uses glsl, basically opengl's way of shading that Three.js supports, which NOBODY KNOWS-->
 
-        <!-- we can use this for both moon and earth less GLSL thank jesus christ-->
-        <script id="vertexShader" type="x-shader/x-vertex">
+<head>
+    <meta charset="utf-8">
+    <title>Venatio</title>
+    <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body>
+    <!-- script for our custom earth shading so our king pranav is happy-->
+    <!-- shaders uses glsl, basically opengl's way of shading that Three.js supports, which NOBODY KNOWS-->
+
+    <!-- we can use this for both moon and earth less GLSL thank jesus christ-->
+    <script id="earthVertexShader" type="x-shader/x-vertex">
             //varying means the value is passed in the both the vertex and fragment shader, so a vector3 is passed to the fragment shader
             varying vec3 varyNormal;
             varying vec3 varyPosition;
@@ -27,8 +29,8 @@
                 gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
             }
         </script>
-        <!-- fragment shader deals with colors, while vertex is for points on the 3d shape-->
-        <script id="earthFragmentShader" type="x-shader/x-fragment">
+    <!-- fragment shader deals with colors, while vertex is for points on the 3d shape-->
+    <script id="earthFragmentShader" type="x-shader/x-fragment">
             uniform sampler2D dayTexture;
             uniform sampler2D nightTexture;
             uniform vec3 lightDirection;
@@ -50,49 +52,60 @@
                 gl_FragColor = mix(nightColor, dayColor, blendFactor);
             }
         </script>
-            
-        <script id="moonFragmentShader" type="x-shader/x-fragment">
-            uniform sampler2D moonTexture;
-            uniform vec3 lightDirection;
-
-            varying vec2 varyUv;
-            varying vec3 varyNormal;
-            varying vec3 varyPosition;
-            void main(){
-                vec4 textureColor = texture2D(moonTexture, varyUv);
-                float dotData = dot(varyNormal, normalize(lightDirection));
-
-                float lightIntensity = step(0.0, dotData);
-
-                float transition = smoothstep(-0.2, 0.2, dotData);
-
-                vec3 darkSide = textureColor.rgb * 0.5;
-                vec3 lightSide = textureColor.rgb;
-                vec3 finalColor = mix(darkSide, lightSide, transition);
-
-                gl_FragColor = vec4(finalColor, 1.0);
+    <script id="moonVertexShader" type="x-shader/x-vertex">
+            varying vec3 vNormal;
+            varying vec2 vUv;
+            varying vec3 vWorldNormal;
+        
+            void main() {
+                vUv = uv;
+                vNormal = normal;
+                // Transform the normal to world space
+                vWorldNormal = (modelMatrix * vec4(normal, 0.0)).xyz;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
             }
         </script>
-        <script type="module" src="/main.js"></script>
+    <script id="moonFragmentShader" type="x-shader/x-fragment">
+        uniform sampler2D moonTexture;
+        uniform vec3 lightDirection;
         
-        <canvas id="c"></canvas>
-        <div id="menu-container">
-            <div id="tab" onclick="toggleMenu()">&#9776; Menu</div>
-            <div id="boundary">
-                <h3 id="controlMenuTitle">Control Menu</h3>
-                <div class="button-container">
-                    <button id="earthButton">Go to Earth</button>
-                    <button id="moonButton">Go to Moon</button>
-                    <button id="button3">Button 3</button>
-                    <button id="button4">Button 4</button>
-                </div>
+        varying vec3 vNormal;
+        varying vec2 vUv;
+        varying vec3 vWorldNormal;
+        
+        void main() {
+            // Use world space normal for lighting
+            vec3 normalizedWorldNormal = normalize(-vWorldNormal);
+            float intensity = max(dot(normalizedWorldNormal, -lightDirection), 0.0);
+            
+            vec4 texColor = texture2D(moonTexture, vUv);
+            float ambient = 0.1;
+            vec3 finalColor = texColor.rgb * (ambient + (1.0 - ambient) * intensity);
+            
+            gl_FragColor = vec4(finalColor, 1.0);
+        }
+        </script>
+    <script type="module" src="/main.js"></script>
+
+    <canvas id="c"></canvas>
+    <div id="menu-container">
+        <div id="tab" onclick="toggleMenu()">&#9776; Menu</div>
+        <div id="boundary">
+            <h3 id="controlMenuTitle">Control Menu</h3>
+            <div class="button-container">
+                <button id="earthButton">Go to Earth</button>
+                <button id="moonButton">Go to Moon</button>
+                <button id="button3">Button 3</button>
+                <button id="button4">Button 4</button>
             </div>
         </div>
-        <script>
-            function toggleMenu() {
-                const menu = document.getElementById('boundary');
-                menu.classList.toggle('open');
-            }
-        </script>
-    </body>
+    </div>
+    <script>
+        function toggleMenu() {
+            const menu = document.getElementById('boundary');
+            menu.classList.toggle('open');
+        }
+    </script>
+</body>
+
 </html>
