@@ -74,13 +74,24 @@
         varying vec3 vWorldNormal;
         
         void main() {
-            // Use world space normal for lighting
-            vec3 normalizedWorldNormal = normalize(-vWorldNormal);
-            float intensity = max(dot(normalizedWorldNormal, -lightDirection), 0.0);
-            
+            // Get the base texture color
             vec4 texColor = texture2D(moonTexture, vUv);
-            float ambient = 0.1;
-            vec3 finalColor = texColor.rgb * (ambient + (1.0 - ambient) * intensity);
+            
+            // Calculate light intensity based on normal and light direction
+            float lightIntensity = max(0.0, dot(-vNormal, lightDirection));
+            
+            // Adjust these values to control the darkness and transition
+            float ambientLight = 0.02;  // Reduced from typical 0.1-0.2 for darker shadows
+            float shadowMultiplier = 0.15;  // Reduced for darker shadows
+            
+            // Create a smoother transition between light and dark
+            float smoothTransition = smoothstep(0.0, 0.8, lightIntensity);
+            
+            // Calculate final lighting
+            float finalLight = ambientLight + smoothTransition * (1.0 - ambientLight);
+            
+            // Apply lighting to the texture
+            vec3 finalColor = texColor.rgb * mix(shadowMultiplier, 1.0, finalLight);
             
             gl_FragColor = vec4(finalColor, 1.0);
         }
