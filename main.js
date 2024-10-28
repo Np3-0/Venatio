@@ -91,7 +91,7 @@ function main(){
     earthGrouping.add(cloudsMesh);
 
     //adds stars to sky
-    const stars = starBackground( { starNums: 20000 } );
+    const stars = starBackground( { starNums: 250 } );
     scene.add(stars);
     
     //atmospheric glow
@@ -131,8 +131,10 @@ function main(){
 
     const satalite = new THREE.Mesh(sataliteGeometry, sataliteMat);
     scene.add(satalite);
-    satalite.position.set(0, 0, earthRadius+50);
+    earthGrouping.add(satalite);
 
+    satalite.position.z = earthRadius + 50;
+    satalite.rotateZ(-23.4 * Math.PI/180);
     // Add OrbitControls
     controls = new OrbitControls(camera, canvas);
     //added zoom params, but better.
@@ -171,12 +173,14 @@ function main(){
                 
         //this number gives a decent constant rotate, I dont know why. Maybe add a way to disable this in app?
         //its time we make the rotation a FLOAT!!!! that way we dont need to change like 15 values
-        let earthRotation = 0.001;
-        let cloudRotation = 0.0015;
-        sphere.rotateY(earthRotation); //approx 0.05 degrees
-        lightMesh.rotateY(earthRotation);
-        atmoSphere.rotateY(earthRotation);
+        let earthRotation = 7.29 * Math.pow(10, -5);
+        let cloudRotation = 1.5 * (7.29 * Math.pow(10, -5));
+        earthGrouping.rotateY(earthRotation);
+     //   sphere.rotateY(earthRotation); //approx 0.05 degrees
+   //     lightMesh.rotateY(earthRotation);
+ //       atmoSphere.rotateY(earthRotation);
         cloudsMesh.rotateY(cloudRotation);
+        
 
         const worldLightDir = new THREE.Vector3(-1, 0, 0);
         moon.updateMatrixWorld();
