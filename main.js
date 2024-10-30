@@ -1,7 +1,7 @@
 //TO DO:
 // - We still need to work on a way to add blender objects in here
 // - Does the earth look a little.. cartoony? Maybe make it a little darker? Mano and I were looking at it and it looks blown out.
-// - Finish moon lighting, rotation maybe, depends on how the data works.
+// - Finish rotation maybe, depends on how the data works.
 
 // 10/15/2024 - I JUST ADDED 16K tEXTURES!! but sadly we cant use it because iphones are so shitty that they cant render it lol. 
 // - The textures will still remain in assets though, maybe we can use it one day.
@@ -9,6 +9,7 @@ import * as THREE from "three";
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import starBackground from "./src/starBackground";
 import atmosphericGlow from "./src/atmosphereGlow";
+import flightPathData from "./data/flightpathdata";
 
 let camera;
 let earthGrouping;
@@ -37,12 +38,12 @@ function main(){
 
     //creating this group prevents clipping between the two textures for day/night cycle
     earthGrouping = new THREE.Group();
-    earthGrouping.rotateZ(-23.4 * Math.PI/180);
+  //  earthGrouping.rotateZ(-23.4 * Math.PI/180);
     scene.add(earthGrouping);
     
     const sphere = new THREE.Mesh(geometry, material);
     sphere.position.set(0, 0, 0);
-
+    
     const lightDirection = new THREE.Vector3(-1000000, 0, 0).normalize();
 
     //add parts of the sphere to the earth group, instead of the scene
@@ -91,9 +92,12 @@ function main(){
     earthGrouping.add(cloudsMesh);
 
     //adds stars to sky
-    const stars = starBackground( { starNums: 250 } );
+    const stars = starBackground( { starNums: 2500 } );
     scene.add(stars);
     
+    const flightPath = flightPathData();
+    scene.add(flightPath);
+
     //atmospheric glow
     const atmoSphereMaterial = atmosphericGlow();
     const atmoSphere = new THREE.Mesh(geometry, atmoSphereMaterial);
@@ -132,7 +136,7 @@ function main(){
     const satalite = new THREE.Mesh(sataliteGeometry, sataliteMat);
     scene.add(satalite);
     earthGrouping.add(satalite);
-
+    console.log(satalite)
     satalite.position.z = earthRadius + 50;
     satalite.rotateZ(-23.4 * Math.PI/180);
     // Add OrbitControls
@@ -167,19 +171,16 @@ function main(){
     }
     //render function without rotation
     function render(time){
-        console.log(camera);
-        //time to seconds
-        time += 0.001;
                 
         //this number gives a decent constant rotate, I dont know why. Maybe add a way to disable this in app?
         //its time we make the rotation a FLOAT!!!! that way we dont need to change like 15 values
         let earthRotation = 7.29 * Math.pow(10, -5);
         let cloudRotation = 1.5 * (7.29 * Math.pow(10, -5));
-        earthGrouping.rotateY(earthRotation);
+       // earthGrouping.rotateY(earthRotation);
      //   sphere.rotateY(earthRotation); //approx 0.05 degrees
    //     lightMesh.rotateY(earthRotation);
  //       atmoSphere.rotateY(earthRotation);
-        cloudsMesh.rotateY(cloudRotation);
+    //    cloudsMesh.rotateY(cloudRotation);
         
 
         const worldLightDir = new THREE.Vector3(-1, 0, 0);
