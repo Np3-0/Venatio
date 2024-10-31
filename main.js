@@ -9,197 +9,183 @@ import * as THREE from "three";
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import starBackground from "./src/starBackground";
 import atmosphericGlow from "./src/atmosphereGlow";
-import flightPathData from "./data/flightpathdata";
+import flightPathClass from "./data/flightpathdata";
 
 let camera;
 let earthGrouping;
 let controls;
-function main(){
-    const canvas = document.querySelector("#c");
-    const renderer = new THREE.WebGLRenderer({antialias: true, canvas});
-    
-    //Set strings for day and night
-    const dayTimeTexture = '/assets/dayTimeEarth.jpg';
-    const nightTimeTexture = '/assets/nightTimeEarth.jpg';
+const canvas = document.querySelector("#c");
+const renderer = new THREE.WebGLRenderer( { antialias: true, canvas } );
 
-    //parameters are: fov, aspect, near, and far
-    camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 10, -1);
-    camera.position.z = 12500; //camera defaults to looking down -z axis and y axis up
+const flightPathObject = new flightPathClass();
 
-    //scene graph (where we draw stuff)
-    const scene = new THREE.Scene();
-    const earthRadius = 6371.0088;
-    //sets the 3d space of the sphere
-    const geometry = new THREE.SphereGeometry(earthRadius, 96, 240);
-    
-    var material = new THREE.MeshPhongMaterial({
-        map: new THREE.TextureLoader().load(dayTimeTexture),
-    });
+//Set strings for day and night
+const dayTimeTexture = '/assets/dayTimeEarth.jpg';
+const nightTimeTexture = '/assets/nightTimeEarth.jpg';
 
-    //creating this group prevents clipping between the two textures for day/night cycle
-    earthGrouping = new THREE.Group();
-  //  earthGrouping.rotateZ(-23.4 * Math.PI/180);
-    scene.add(earthGrouping);
-    
-    const sphere = new THREE.Mesh(geometry, material);
-    sphere.position.set(0, 0, 0);
-    
-    const lightDirection = new THREE.Vector3(-1000000, 0, 0).normalize();
+//parameters are: fov, aspect, near, and far
+camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 10, -1);
+camera.position.x = 12500; //camera defaults to looking down -z axis and y axis up
 
-    //add parts of the sphere to the earth group, instead of the scene
-    //earthGrouping.add(sphere);
+//scene graph (where we draw stuff)
+const scene = new THREE.Scene();
+const earthRadius = 6371.0088;
+//sets the 3d space of the sphere
+const geometry = new THREE.SphereGeometry(earthRadius, 96, 240);
 
-    // vec3(directionofcamera-directionoflight)
-    
+var material = new THREE.MeshPhongMaterial({
+    map: new THREE.TextureLoader().load(dayTimeTexture),
+});
 
-    //values needed for the shading: texture and where the light is from
-    const dayTexture = new THREE.TextureLoader().load(dayTimeTexture);
-    const nightTexture = new THREE.TextureLoader().load(nightTimeTexture);
-    const earthLightDirection = lightDirection.clone().applyQuaternion(camera.quaternion.clone().invert()).normalize();
-    //changed to shaderMaterial for the shading
-    const nightShader = new THREE.ShaderMaterial({
-        //uniforms are just the data that the shader uses we defined earlier
-        uniforms: {
-            dayTexture: {value: dayTexture},
-            nightTexture: {value: nightTexture},
-            lightDirection: {value: earthLightDirection},
-            resolution: {value: new THREE.Vector2(window.innerWidth, window.innerHeight)},
-        },
-        vertexShader: document.getElementById("earthVertexShader").textContent,
-        fragmentShader: document.getElementById("earthFragmentShader").textContent,
-        //transparent: true,
-        blending: THREE.NormalBlending,   
-    });
-    
-    const lightMesh = new THREE.Mesh(geometry, nightShader);
-    earthGrouping.add(lightMesh);
+//creating this group prevents clipping between the two textures for day/night cycle
+earthGrouping = new THREE.Group();
+// earthGrouping.rotateZ(-24.4 * Math.PI/180);
+scene.add(earthGrouping);
 
-    //i like clouds :)
-    const cloudsMat = new THREE.MeshStandardMaterial({
-        //add the texture (Loader.load did NOT work)
-        map: new THREE.TextureLoader().load("/assets/clouds.jpg"),
-        //below is your brightness. i dunno why 3js makes it color
-        color: new THREE.Color(0.1, 0.1, 0.1),
-        // TRANSPARENCY BREAKS CLOUDS!!! DONT ENABLE
-        // transparent: true,
-        // opacity: 0.8,
-        blending: THREE.AdditiveBlending,
-    });
+//const sphere = new THREE.Mesh(geometry, material);
+//sphere.position.set(0, 0, 0);
 
-    //add that into the earth group for easy rotation
-    const cloudsMesh = new THREE.Mesh(geometry, cloudsMat);
-    cloudsMesh.scale.setScalar(1.003);
-    earthGrouping.add(cloudsMesh);
+const lightDirection = new THREE.Vector3(-1000000, 0, 0).normalize();
 
-    //adds stars to sky
-    const stars = starBackground( { starNums: 2500 } );
-    scene.add(stars);
-    
-    const flightPath = flightPathData();
-    scene.add(flightPath);
+//add parts of the sphere to the earth group, instead of the scene
+//earthGrouping.add(sphere);
 
-    //atmospheric glow
-    const atmoSphereMaterial = atmosphericGlow();
-    const atmoSphere = new THREE.Mesh(geometry, atmoSphereMaterial);
-    earthGrouping.add(atmoSphere);
-    atmoSphere.scale.setScalar(1.01);
+// vec3(directionofcamera-directionoflight)
 
-    //sunlight, hopefully works better now
-    const sunlight = new THREE.AmbientLight(0xFFFFFF, 1);
-    scene.add(sunlight);
-    //MOON TiME!!!!
+//values needed for the shading: texture and where the light is from
+const dayTexture = new THREE.TextureLoader().load(dayTimeTexture);
+const nightTexture = new THREE.TextureLoader().load(nightTimeTexture);
+const earthLightDirection = lightDirection.clone().applyQuaternion(camera.quaternion.clone().invert()).normalize();
+//changed to shaderMaterial for the shading
+const nightShader = new THREE.ShaderMaterial({
+    //uniforms are just the data that the shader uses we defined earlier
+    uniforms: {
+        dayTexture: {value: dayTexture},
+        nightTexture: {value: nightTexture},
+        lightDirection: {value: earthLightDirection},
+        resolution: {value: new THREE.Vector2(window.innerWidth, window.innerHeight)},
+    },
+    vertexShader: document.getElementById("earthVertexShader").textContent,
+    fragmentShader: document.getElementById("earthFragmentShader").textContent,
+    //transparent: true,
+    blending: THREE.NormalBlending,   
+});
 
-    //texture
-    const moonTexture = "./assets/moonTexture.jpg";
-    const moonGeometry = new THREE.SphereGeometry(1737.4, 96, 240);
-    const moonMaterial = new THREE.ShaderMaterial({
-        uniforms: {
-            moonTexture: { value: new THREE.TextureLoader().load(moonTexture) },
-            lightDirection: { value: new THREE.Vector3(-1, 0, 0).normalize() },
-        },
-        vertexShader: document.getElementById("moonVertexShader").textContent,
-        fragmentShader: document.getElementById("moonFragmentShader").textContent,
-    })
-    
-    const moon = new THREE.Mesh(moonGeometry, moonMaterial);
-    scene.add(moon);
-    moon.rotateY(Math.PI);
-    moon.rotateZ(1.5 * Math.PI/180);
-    moon.position.set(38440, 0, 0);
+const lightMesh = new THREE.Mesh(geometry, nightShader);
+earthGrouping.add(lightMesh);
 
-    
-    const sataliteGeometry = new THREE.SphereGeometry(100, 96, 240);
-    const sataliteMat = new THREE.MeshBasicMaterial({
-        color: 0x00FF00,
-    });
+//i like clouds :)
+const cloudsMat = new THREE.MeshStandardMaterial({
+    //add the texture (Loader.load did NOT work)
+    map: new THREE.TextureLoader().load("/assets/clouds.jpg"),
+    //below is your brightness. i dunno why 3js makes it color
+    color: new THREE.Color(0.1, 0.1, 0.1),
+    // TRANSPARENCY BREAKS CLOUDS!!! DONT ENABLE
+    // transparent: true,
+    // opacity: 0.8,
+    blending: THREE.AdditiveBlending,
+});
 
-    const satalite = new THREE.Mesh(sataliteGeometry, sataliteMat);
-    scene.add(satalite);
-    earthGrouping.add(satalite);
-    console.log(satalite)
-    satalite.position.z = earthRadius + 50;
-    satalite.rotateZ(-23.4 * Math.PI/180);
-    // Add OrbitControls
-    controls = new OrbitControls(camera, canvas);
-    //added zoom params, but better.
-    controls.minDistance = 10000;
-    controls.maxDistance = 250000;
+//add that into the earth group for easy rotation
+const cloudsMesh = new THREE.Mesh(geometry, cloudsMat);
+cloudsMesh.scale.setScalar(1.003);
+earthGrouping.add(cloudsMesh);
 
-    //turns out we have to make our own panning!!!!!!
-    //our singular panning limit 
-    const panningLimit = 50000;
-    //catches any change
-    controls.addEventListener("change", () => {
-        //gets camera pos
-        const cameraOffset = controls.target.clone().sub(camera.position);
-        //clamps x/y pan to the negative and pos versions of the limit
-        controls.target.clampScalar(-panningLimit, panningLimit);
-        //sets the camera position to the target minus the offset
-        camera.position.copy(controls.target).sub(cameraOffset);
-    });
-    controls.update();
+//adds stars to sky
+const stars = starBackground( { starNums: 2500 } );
+scene.add(stars);
 
-    function resizeRendererToDisplaySize(renderer) {
-        const canvas = renderer.domElement;
-        const width = canvas.clientWidth;
-        const height = canvas.clientHeight;
-        const needResize = canvas.width !== width || canvas.height !== height;
-        if (needResize) {
-            renderer.setSize(width, height, false);
-        }
-        return needResize;
-    }
-    //render function without rotation
-    function render(time){
-                
-        //this number gives a decent constant rotate, I dont know why. Maybe add a way to disable this in app?
-        //its time we make the rotation a FLOAT!!!! that way we dont need to change like 15 values
-        let earthRotation = 7.29 * Math.pow(10, -5);
-        let cloudRotation = 1.5 * (7.29 * Math.pow(10, -5));
-       // earthGrouping.rotateY(earthRotation);
-     //   sphere.rotateY(earthRotation); //approx 0.05 degrees
-   //     lightMesh.rotateY(earthRotation);
- //       atmoSphere.rotateY(earthRotation);
-    //    cloudsMesh.rotateY(cloudRotation);
+const flightPath = flightPathObject.promise.finally(() => { console.log(flightPathObject.arr); console.log(flightPathObject.points); scene.add(flightPathObject.points); });
+
+//atmospheric glow
+const atmoSphereMaterial = atmosphericGlow();
+const atmoSphere = new THREE.Mesh(geometry, atmoSphereMaterial);
+earthGrouping.add(atmoSphere);
+atmoSphere.scale.setScalar(1.01);
+
+//sunlight, hopefully works better now
+const sunlight = new THREE.AmbientLight(0xFFFFFF, 1);
+scene.add(sunlight);
+//MOON TiME!!!!
+
+//texture
+const moonTexture = "./assets/moonTexture.jpg";
+const moonGeometry = new THREE.SphereGeometry(1737.4, 96, 240);
+const moonMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+        moonTexture: { value: new THREE.TextureLoader().load(moonTexture) },
+        lightDirection: { value: new THREE.Vector3(-1, 0, 0).normalize() },
+    },
+    vertexShader: document.getElementById("moonVertexShader").textContent,
+    fragmentShader: document.getElementById("moonFragmentShader").textContent,
+})
+
+const moon = new THREE.Mesh(moonGeometry, moonMaterial);
+scene.add(moon);
+moon.rotateY(Math.PI);
+moon.rotateZ(1.5 * Math.PI/180);
+moon.position.set(-384400, 0, 0);
+
+const sataliteGeometry = new THREE.SphereGeometry(100, 96, 240);
+const sataliteMat = new THREE.MeshBasicMaterial({
+    color: 0x00FF00,
+});
+
+const satalite = new THREE.Mesh(sataliteGeometry, sataliteMat);
+scene.add(satalite);
+earthGrouping.add(satalite);
+console.log(satalite)
+satalite.position.x = earthRadius + 50;
+//satalite.rotateZ(-23.4 * Math.PI/180);
+// Add OrbitControls
+controls = new OrbitControls(camera, canvas);
+//added zoom params, but better.
+controls.minDistance = 10000;
+controls.maxDistance = 250000;
+
+//turns out we have to make our own panning!!!!!!
+//our singular panning limit 
+const panningLimit = 50000;
+//catches any change
+controls.addEventListener("change", () => {
+    //gets camera pos
+    const cameraOffset = controls.target.clone().sub(camera.position);
+    //clamps x/y pan to the negative and pos versions of the limit
+    //controls.target.clampScalar(-panningLimit, panningLimit);
+    //sets the camera position to the target minus the offset
+    camera.position.copy(controls.target).sub(cameraOffset);
+});
+controls.update();
+
+//render function without rotation
+function render(time) {
+
+    //this number gives a decent constant rotate, I dont know why. Maybe add a way to disable this in app?
+    // its time we make the rotation a FLOAT!!!! that way we dont need to change like 15 values
+    let earthRotation = 7.29 * Math.pow(10, -5);
+    let cloudRotation = 1.5 * (7.29 * Math.pow(10, -5));
+    // earthGrouping.rotateY(earthRotation);
+    // sphere.rotateY(earthRotation); //approx 0.05 degrees
+    // lightMesh.rotateY(earthRotation);
+    // atmoSphere.rotateY(earthRotation);
+    // cloudsMesh.rotateY(cloudRotation);
         
 
-        const worldLightDir = new THREE.Vector3(-1, 0, 0);
-        moon.updateMatrixWorld();
-        moonMaterial.uniforms.lightDirection.value.set(-1, 0, 0).normalize();
+    const worldLightDir = new THREE.Vector3(-1, 0, 0);
+    moon.updateMatrixWorld();
+    moonMaterial.uniforms.lightDirection.value.set(-1, 0, 0).normalize();
 
-        if (resizeRendererToDisplaySize(renderer)) {
-            const canvas = renderer.domElement;
-            camera.aspect = canvas.clientWidth / canvas.clientHeight;
-            camera.updateProjectionMatrix();
-        }
-        controls.update();
-        renderer.render(scene, camera);
-        requestAnimationFrame(render);
+    const needResize = canvas.width !== canvas.clientWidth || canvas.height !== canvas.clientHeight;
+    if (needResize) {
+        renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+        camera.aspect = canvas.clientWidth / canvas.clientHeight;
+        camera.updateProjectionMatrix();
     }
+    controls.update();
+    renderer.render(scene, camera);
     requestAnimationFrame(render);
 }
-
-main();
+requestAnimationFrame(render);
 
 //gets the button being clicked and sets the camera/target better than doing this crap 4 times
 //object with name of button as object, and camerapos and targetpos as arrays
@@ -209,8 +195,8 @@ const buttonInfo = {
         targetPos: [0, 0, 0],
     },
     moonButton: {
-        cameraPos: [38440, 0, 12500],
-        targetPos: [38440, 0, 0],
+        cameraPos: [-384400, 0, 12500],
+        targetPos: [-384400, 0, 0],
     },
 }
 
