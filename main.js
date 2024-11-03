@@ -5,6 +5,7 @@
 
 // 10/15/2024 - I JUST ADDED 16K tEXTURES!! but sadly we cant use it because iphones are so shitty that they cant render it lol. 
 // - The textures will still remain in assets though, maybe we can use it one day.
+// 11/3/24 - WEBSITE LOADS ON 4GB IMAC!!!! IS THIS A WEBKIT ISSUE OR A IPHONE ISSUE???? GET RYAN ON HERE!!!!
 import * as THREE from "three";
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import starBackground from "./src/starBackground";
