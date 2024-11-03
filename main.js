@@ -152,12 +152,17 @@ const flightPath = flightPathObject.promise.finally(async () => {
     console.log(flightPathObject.points); 
     scene.add(flightPathObject.points);
 
-    for (let i = 0; i < flightPathObject.arr[0].length; i++) {
-        rocket.position.set(flightPathObject.arr[1][i], flightPathObject.arr[2][i], flightPathObject.arr[3][i]);
-        
-        rocket.lookAt(flightPathObject.arr[1][i+1], flightPathObject.arr[2][i+1], flightPathObject.arr[3][i+1]);
-        await new Promise(resolve => setTimeout(resolve, 250 * rocketSpeedMultiplier));
+    //screw it, recursive function to move the rocket
+    async function moveRocket(index) {
+        if (index >= flightPathObject.arr[0].length - 1) index = 0; // Reset the index to loop back to the start
+        rocket.position.set(flightPathObject.arr[1][index], flightPathObject.arr[2][index], flightPathObject.arr[3][index]);
+        rocket.lookAt(flightPathObject.arr[1][index + 1], flightPathObject.arr[2][index + 1], flightPathObject.arr[3][index + 1]);
+        await new Promise(resolve => setTimeout(resolve, 250 * 0.001));
+        moveRocket(index + 1); // Call the function recursively with the next index
     }
+
+    // Start the recursive function
+    moveRocket(0);
 });
 // Add OrbitControls
 controls = new OrbitControls(camera, canvas);
