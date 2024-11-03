@@ -14,10 +14,12 @@ import flightPathClass from "./data/flightpathdata";
 let camera;
 let earthGrouping;
 let controls;
-const canvas = document.querySelector("#c");
-const renderer = new THREE.WebGLRenderer( { antialias: true, canvas } );
+let flightPathObject;
 
-const flightPathObject = new flightPathClass();
+const canvas = document.querySelector("#c");
+const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
+
+flightPathObject = new flightPathClass();
 
 //Set strings for day and night
 const dayTimeTexture = '/assets/dayTimeEarth.jpg';
@@ -60,15 +62,15 @@ const earthLightDirection = lightDirection.clone().applyQuaternion(camera.quater
 const nightShader = new THREE.ShaderMaterial({
     //uniforms are just the data that the shader uses we defined earlier
     uniforms: {
-        dayTexture: {value: dayTexture},
-        nightTexture: {value: nightTexture},
-        lightDirection: {value: earthLightDirection},
-        resolution: {value: new THREE.Vector2(window.innerWidth, window.innerHeight)},
+        dayTexture: { value: dayTexture },
+        nightTexture: { value: nightTexture },
+        lightDirection: { value: earthLightDirection },
+        resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
     },
     vertexShader: document.getElementById("earthVertexShader").textContent,
     fragmentShader: document.getElementById("earthFragmentShader").textContent,
     //transparent: true,
-    blending: THREE.NormalBlending,   
+    blending: THREE.NormalBlending,
 });
 
 const lightMesh = new THREE.Mesh(geometry, nightShader);
@@ -92,10 +94,10 @@ cloudsMesh.scale.setScalar(1.003);
 earthGrouping.add(cloudsMesh);
 
 //adds stars to sky
-const stars = starBackground( { starNums: 2500 } );
+const stars = starBackground({ starNums: 10000 });
 scene.add(stars);
 
-const flightPath = flightPathObject.promise.finally(() => { console.log(flightPathObject.arr); console.log(flightPathObject.points); scene.add(flightPathObject.points); });
+
 
 //atmospheric glow
 const atmoSphereMaterial = atmosphericGlow();
@@ -123,7 +125,7 @@ const moonMaterial = new THREE.ShaderMaterial({
 const moon = new THREE.Mesh(moonGeometry, moonMaterial);
 scene.add(moon);
 moon.rotateY(Math.PI);
-moon.rotateZ(1.5 * Math.PI/180);
+moon.rotateZ(1.5 * Math.PI / 180);
 moon.position.set(-384400, 0, 0);
 
 const sataliteGeometry = new THREE.SphereGeometry(100, 96, 240);
@@ -134,17 +136,34 @@ const sataliteMat = new THREE.MeshBasicMaterial({
 const satalite = new THREE.Mesh(sataliteGeometry, sataliteMat);
 scene.add(satalite);
 earthGrouping.add(satalite);
-console.log(satalite)
 satalite.position.x = earthRadius + 50;
 //satalite.rotateZ(-23.4 * Math.PI/180);
+
+//rocket time yayayay yasyayayay yay
+const rocketGeometry = new THREE.ConeGeometry(100, 100, 32);
+const rocketMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFF00 });
+const rocket = new THREE.Mesh(rocketGeometry, rocketMaterial);
+scene.add(rocket);
+rocket.position.set(10000,10000,0);
+
+const flightPath = flightPathObject.promise.finally(async () => { 
+    console.log(flightPathObject.arr); 
+    console.log(flightPathObject.points); 
+    scene.add(flightPathObject.points);
+
+    for (let i = 0; i < flightPathObject.arr[0].length; i++) {
+        rocket.position.set(flightPathObject.arr[1][i], flightPathObject.arr[2][i], flightPathObject.arr[3][i]);
+        await new Promise(resolve => setTimeout(resolve, 250));
+    }
+});
 // Add OrbitControls
 controls = new OrbitControls(camera, canvas);
 //added zoom params, but better.
 controls.minDistance = 10000;
-controls.maxDistance = 250000;
+controls.maxDistance = 500000;
+
 
 //turns out we have to make our own panning!!!!!!
-//our singular panning limit 
 const panningLimit = 50000;
 //catches any change
 controls.addEventListener("change", () => {
@@ -169,7 +188,7 @@ function render(time) {
     // lightMesh.rotateY(earthRotation);
     // atmoSphere.rotateY(earthRotation);
     // cloudsMesh.rotateY(cloudRotation);
-        
+
 
     const worldLightDir = new THREE.Vector3(-1, 0, 0);
     moon.updateMatrixWorld();
@@ -197,7 +216,7 @@ const buttonInfo = {
     moonButton: {
         cameraPos: [-384400, 0, 12500],
         targetPos: [-384400, 0, 0],
-    },
+    },  
 }
 
 document.querySelectorAll(".button-container button").forEach(button => button.addEventListener("click", () => {
