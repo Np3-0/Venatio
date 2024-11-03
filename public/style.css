@@ -94,6 +94,17 @@ html, body, #c {
    cursor: pointer;
 }
 
+.button-container input{
+   width: 48%;
+   margin-bottom: 5px;
+   
+   font-size: 1vmin;
+   font-weight: bold;
+   border: none;
+   border-radius: 3px;
+   background-color: #fff;
+}
+
 .button-container button:hover {
    background-color: #b33838;
    color: #fff;

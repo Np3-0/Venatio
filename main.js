@@ -15,6 +15,7 @@ let camera;
 let earthGrouping;
 let controls;
 let flightPathObject;
+let rocketSpeedMultiplier = 1;
 
 const canvas = document.querySelector("#c");
 const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
@@ -144,7 +145,7 @@ const rocketGeometry = new THREE.ConeGeometry(100, 100, 32);
 const rocketMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFF00 });
 const rocket = new THREE.Mesh(rocketGeometry, rocketMaterial);
 scene.add(rocket);
-rocket.position.set(10000,10000,0);
+
 
 const flightPath = flightPathObject.promise.finally(async () => { 
     console.log(flightPathObject.arr); 
@@ -153,7 +154,9 @@ const flightPath = flightPathObject.promise.finally(async () => {
 
     for (let i = 0; i < flightPathObject.arr[0].length; i++) {
         rocket.position.set(flightPathObject.arr[1][i], flightPathObject.arr[2][i], flightPathObject.arr[3][i]);
-        await new Promise(resolve => setTimeout(resolve, 250));
+        
+        rocket.lookAt(flightPathObject.arr[1][i+1], flightPathObject.arr[2][i+1], flightPathObject.arr[3][i+1]);
+        await new Promise(resolve => setTimeout(resolve, 250 * rocketSpeedMultiplier));
     }
 });
 // Add OrbitControls
@@ -216,12 +219,17 @@ const buttonInfo = {
     moonButton: {
         cameraPos: [-384400, 0, 12500],
         targetPos: [-384400, 0, 0],
-    },  
+    },
 }
 
-document.querySelectorAll(".button-container button").forEach(button => button.addEventListener("click", () => {
+document.querySelectorAll(".button-container button").forEach(button => button.addEventListener("click", (e) => {
     const { cameraPos, targetPos } = buttonInfo[button.id];
     camera.position.set(...cameraPos);
     controls.target.set(...targetPos); // Reset the target of the controls
     controls.update();
 }));
+
+document.querySelector("#rocketInput").addEventListener("change", (e) => {
+    rocketSpeedMultiplier = e.target.value/10;
+    console.log(rocketSpeedMultiplier);
+});
