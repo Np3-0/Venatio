@@ -1,12 +1,13 @@
 import * as THREE from 'three';
 
 export default function flightPathClass() {
-	this.binarySearchFloor = function(el, compare_fn) {
+	
+	this.binarySearchFloor = function(el) {
 		let m = 0;
 		let n = this.arr.length - 1;
 		while (m <= n) {
 			let k = (n + m) >> 1;
-			let cmp = compare_fn(el, arr[k]);
+			let cmp = el - this.arr;
 			if (cmp > 0) {
 				m = k + 1;
 			} else if (cmp < 0) {
@@ -14,16 +15,14 @@ export default function flightPathClass() {
 			} else {
 				return k;
 			}
-		}
+		} 
 		return m-1;
 	}
-	
-	this.compareNumber = function(a, b) { return a - b; }
 	
 	this.dataWeightedAverage = function(time) { return -1; }
 	
 	this.dataWeightedAverageLoaded = function(time) {
-		var lowerTimeIndex = this.binarySearchFloor(this.arr[0], time, compareNumber);
+		var lowerTimeIndex = this.binarySearchFloor(this.arr[0], time);
 		var upperTimeIndex = lowerTimeIndex + 1;
 	
 		if (upperTimeIndex == this.arr[0].length || lowerTimeIndex < 0) {

@@ -15,13 +15,12 @@ import flightPathClass from "./data/flightpathdata";
 let camera;
 let earthGrouping;
 let controls;
-let flightPathObject;
 let rocketSpeedMultiplier = 1;
 
 const canvas = document.querySelector("#c");
 const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
 
-flightPathObject = new flightPathClass();
+const flightPathObject = new flightPathClass();
 
 //Set strings for day and night
 const dayTimeTexture = '/assets/dayTimeEarth.jpg';
@@ -142,29 +141,16 @@ satalite.position.x = earthRadius + 50;
 //satalite.rotateZ(-23.4 * Math.PI/180);
 
 //rocket time yayayay yasyayayay yay
-const rocketGeometry = new THREE.ConeGeometry(100, 100, 32);
+const rocketGeometry = new THREE.ConeGeometry(300, 100, 32);
 const rocketMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFF00 });
 const rocket = new THREE.Mesh(rocketGeometry, rocketMaterial);
 scene.add(rocket);
 
 
 const flightPath = flightPathObject.promise.finally(async () => { 
-    console.log(flightPathObject.arr); 
-    console.log(flightPathObject.points); 
-    scene.add(flightPathObject.points);
-
-    //screw it, recursive function to move the rocket
-    async function moveRocket(index) {
-        if (index >= flightPathObject.arr[0].length - 1) index = 0; // Reset the index to loop back to the start
-        rocket.position.set(flightPathObject.arr[1][index], flightPathObject.arr[2][index], flightPathObject.arr[3][index]);
-        rocket.lookAt(flightPathObject.arr[1][index + 1], flightPathObject.arr[2][index + 1], flightPathObject.arr[3][index + 1]);
-        await new Promise(resolve => setTimeout(resolve, 250 * 0.001));
-        moveRocket(index + 1); // Call the function recursively with the next index
-    }
-
-    // Start the recursive function
-    moveRocket(0);
+    scene.add(flightPathObject.points);    
 });
+
 // Add OrbitControls
 controls = new OrbitControls(camera, canvas);
 //added zoom params, but better.
@@ -186,8 +172,12 @@ controls.addEventListener("change", () => {
 controls.update();
 
 //render function without rotation
-function render(time) {
-
+const startTime = Date.now();
+function render() {
+    
+    let rocketData = flightPathObject.dataWeightedAverage((Date.now() - startTime) * rocketSpeedMultiplier/100);
+    rocket.position.set(rocketData[1], rocketData[2], rocketData[3]);
+    console.log(rocketData);
     //this number gives a decent constant rotate, I dont know why. Maybe add a way to disable this in app?
     // its time we make the rotation a FLOAT!!!! that way we dont need to change like 15 values
     let earthRotation = 7.29 * Math.pow(10, -5);
