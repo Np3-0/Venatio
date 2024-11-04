@@ -37,7 +37,7 @@ const earthRadius = 6371.0088;
 const geometry = new THREE.SphereGeometry(earthRadius, 96, 240);
 
 var material = new THREE.MeshPhongMaterial({
-    map: new THREE.TextureLoader().load(dayTimeTexture),
+	map: new THREE.TextureLoader().load(dayTimeTexture),
 });
 
 //creating this group prevents clipping between the two textures for day/night cycle
@@ -61,17 +61,17 @@ const nightTexture = new THREE.TextureLoader().load(nightTimeTexture);
 const earthLightDirection = lightDirection.clone().applyQuaternion(camera.quaternion.clone().invert()).normalize();
 //changed to shaderMaterial for the shading
 const nightShader = new THREE.ShaderMaterial({
-    //uniforms are just the data that the shader uses we defined earlier
-    uniforms: {
-        dayTexture: { value: dayTexture },
-        nightTexture: { value: nightTexture },
-        lightDirection: { value: earthLightDirection },
-        resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-    },
-    vertexShader: document.getElementById("earthVertexShader").textContent,
-    fragmentShader: document.getElementById("earthFragmentShader").textContent,
-    //transparent: true,
-    blending: THREE.NormalBlending,
+	//uniforms are just the data that the shader uses we defined earlier
+	uniforms: {
+		dayTexture: { value: dayTexture },
+		nightTexture: { value: nightTexture },
+		lightDirection: { value: earthLightDirection },
+		resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+	},
+	vertexShader: document.getElementById("earthVertexShader").textContent,
+	fragmentShader: document.getElementById("earthFragmentShader").textContent,
+	//transparent: true,
+	blending: THREE.NormalBlending,
 });
 
 const lightMesh = new THREE.Mesh(geometry, nightShader);
@@ -79,14 +79,14 @@ earthGrouping.add(lightMesh);
 
 //i like clouds :)
 const cloudsMat = new THREE.MeshStandardMaterial({
-    //add the texture (Loader.load did NOT work)
-    map: new THREE.TextureLoader().load("/assets/clouds.jpg"),
-    //below is your brightness. i dunno why 3js makes it color
-    color: new THREE.Color(0.1, 0.1, 0.1),
-    // TRANSPARENCY BREAKS CLOUDS!!! DONT ENABLE
-    // transparent: true,
-    // opacity: 0.8,
-    blending: THREE.AdditiveBlending,
+	//add the texture (Loader.load did NOT work)
+	map: new THREE.TextureLoader().load("/assets/clouds.jpg"),
+	//below is your brightness. i dunno why 3js makes it color
+	color: new THREE.Color(0.1, 0.1, 0.1),
+	// TRANSPARENCY BREAKS CLOUDS!!! DONT ENABLE
+	// transparent: true,
+	// opacity: 0.8,
+	blending: THREE.AdditiveBlending,
 });
 
 //add that into the earth group for easy rotation
@@ -115,12 +115,12 @@ scene.add(sunlight);
 const moonTexture = "./assets/moonTexture.jpg";
 const moonGeometry = new THREE.SphereGeometry(1737.4, 96, 240);
 const moonMaterial = new THREE.ShaderMaterial({
-    uniforms: {
-        moonTexture: { value: new THREE.TextureLoader().load(moonTexture) },
-        lightDirection: { value: new THREE.Vector3(-1, 0, 0).normalize() },
-    },
-    vertexShader: document.getElementById("moonVertexShader").textContent,
-    fragmentShader: document.getElementById("moonFragmentShader").textContent,
+	uniforms: {
+		moonTexture: { value: new THREE.TextureLoader().load(moonTexture) },
+		lightDirection: { value: new THREE.Vector3(-1, 0, 0).normalize() },
+	},
+	vertexShader: document.getElementById("moonVertexShader").textContent,
+	fragmentShader: document.getElementById("moonFragmentShader").textContent,
 })
 
 const moon = new THREE.Mesh(moonGeometry, moonMaterial);
@@ -131,7 +131,7 @@ moon.position.set(-384400, 0, 0);
 
 const sataliteGeometry = new THREE.SphereGeometry(100, 96, 240);
 const sataliteMat = new THREE.MeshBasicMaterial({
-    color: 0x00FF00,
+	color: 0x00FF00,
 });
 
 const satalite = new THREE.Mesh(sataliteGeometry, sataliteMat);
@@ -148,7 +148,9 @@ scene.add(rocket);
 
 
 const flightPath = flightPathObject.promise.finally(async () => { 
-    scene.add(flightPathObject.points);    
+	scene.add(flightPathObject.points);
+	console.log(flightPathObject.arr);
+	console.log(flightPathObject.dataWeightedAverage(4));
 });
 
 // Add OrbitControls
@@ -162,70 +164,70 @@ controls.maxDistance = 500000;
 const panningLimit = 50000;
 //catches any change
 controls.addEventListener("change", () => {
-    //gets camera pos
-    const cameraOffset = controls.target.clone().sub(camera.position);
-    //clamps x/y pan to the negative and pos versions of the limit
-    //controls.target.clampScalar(-panningLimit, panningLimit);
-    //sets the camera position to the target minus the offset
-    camera.position.copy(controls.target).sub(cameraOffset);
+	//gets camera pos
+	const cameraOffset = controls.target.clone().sub(camera.position);
+	//clamps x/y pan to the negative and pos versions of the limit
+	//controls.target.clampScalar(-panningLimit, panningLimit);
+	//sets the camera position to the target minus the offset
+	camera.position.copy(controls.target).sub(cameraOffset);
 });
 controls.update();
 
 //render function without rotation
 const startTime = Date.now();
 function render() {
-    
-    let rocketData = flightPathObject.dataWeightedAverage((Date.now() - startTime) * rocketSpeedMultiplier/100);
-    rocket.position.set(rocketData[1], rocketData[2], rocketData[3]);
-    console.log(rocketData);
-    //this number gives a decent constant rotate, I dont know why. Maybe add a way to disable this in app?
-    // its time we make the rotation a FLOAT!!!! that way we dont need to change like 15 values
-    let earthRotation = 7.29 * Math.pow(10, -5);
-    let cloudRotation = 1.5 * (7.29 * Math.pow(10, -5));
-    // earthGrouping.rotateY(earthRotation);
-    // sphere.rotateY(earthRotation); //approx 0.05 degrees
-    // lightMesh.rotateY(earthRotation);
-    // atmoSphere.rotateY(earthRotation);
-    // cloudsMesh.rotateY(cloudRotation);
+	
+	let rocketData = flightPathObject.dataWeightedAverage((Date.now() - startTime) * rocketSpeedMultiplier/100);
+	rocket.position.set(rocketData[1], rocketData[2], rocketData[3]);
+	//console.log(rocketData);
+	//this number gives a decent constant rotate, I dont know why. Maybe add a way to disable this in app?
+	// its time we make the rotation a FLOAT!!!! that way we dont need to change like 15 values
+	let earthRotation = 7.29 * Math.pow(10, -5);
+	let cloudRotation = 1.5 * (7.29 * Math.pow(10, -5));
+	// earthGrouping.rotateY(earthRotation);
+	// sphere.rotateY(earthRotation); //approx 0.05 degrees
+	// lightMesh.rotateY(earthRotation);
+	// atmoSphere.rotateY(earthRotation);
+	// cloudsMesh.rotateY(cloudRotation);
 
 
-    const worldLightDir = new THREE.Vector3(-1, 0, 0);
-    moon.updateMatrixWorld();
-    moonMaterial.uniforms.lightDirection.value.set(-1, 0, 0).normalize();
+	const worldLightDir = new THREE.Vector3(-1, 0, 0);
+	moon.updateMatrixWorld();
+	moonMaterial.uniforms.lightDirection.value.set(-1, 0, 0).normalize();
 
-    const needResize = canvas.width !== canvas.clientWidth || canvas.height !== canvas.clientHeight;
-    if (needResize) {
-        renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
-        camera.aspect = canvas.clientWidth / canvas.clientHeight;
-        camera.updateProjectionMatrix();
-    }
-    controls.update();
-    renderer.render(scene, camera);
-    requestAnimationFrame(render);
+	const needResize = canvas.width !== canvas.clientWidth || canvas.height !== canvas.clientHeight;
+	if (needResize) {
+		renderer.setSize(canvas.clientWidth, canvas.clientHeight, false);
+		camera.aspect = canvas.clientWidth / canvas.clientHeight;
+		camera.updateProjectionMatrix();
+	}
+	controls.update();
+	renderer.render(scene, camera);
+	requestAnimationFrame(render);
 }
 requestAnimationFrame(render);
 
 //gets the button being clicked and sets the camera/target better than doing this crap 4 times
 //object with name of button as object, and camerapos and targetpos as arrays
 const buttonInfo = {
-    earthButton: {
-        cameraPos: [0, 0, 12500],
-        targetPos: [0, 0, 0],
-    },
-    moonButton: {
-        cameraPos: [-384400, 0, 12500],
-        targetPos: [-384400, 0, 0],
-    },
+	earthButton: {
+		cameraPos: [0, 0, 12500],
+		targetPos: [0, 0, 0],
+	},
+	moonButton: {
+		cameraPos: [-384400, 0, 12500],
+		targetPos: [-384400, 0, 0],
+	},
 }
 
 document.querySelectorAll(".button-container button").forEach(button => button.addEventListener("click", (e) => {
-    const { cameraPos, targetPos } = buttonInfo[button.id];
-    camera.position.set(...cameraPos);
-    controls.target.set(...targetPos); // Reset the target of the controls
-    controls.update();
+	const { cameraPos, targetPos } = buttonInfo[button.id];
+	camera.position.set(...cameraPos);
+	controls.target.set(...targetPos); // Reset the target of the controls
+	controls.update();
 }));
 
 document.querySelector("#rocketInput").addEventListener("change", (e) => {
-    rocketSpeedMultiplier = e.target.value/10;
-    console.log(rocketSpeedMultiplier);
+	rocketSpeedMultiplier = e.target.value/10;
+	console.log(rocketSpeedMultiplier);
 });

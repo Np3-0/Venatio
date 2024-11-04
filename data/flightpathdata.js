@@ -2,12 +2,12 @@ import * as THREE from 'three';
 
 export default function flightPathClass() {
 	
-	this.binarySearchFloor = function(el) {
+	this.binarySearchFloor = function(arr, el) {
 		let m = 0;
-		let n = this.arr.length - 1;
+		let n = arr.length - 1;
 		while (m <= n) {
 			let k = (n + m) >> 1;
-			let cmp = el - this.arr;
+			let cmp = el - arr[k];
 			if (cmp > 0) {
 				m = k + 1;
 			} else if (cmp < 0) {
