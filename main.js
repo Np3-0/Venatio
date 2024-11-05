@@ -141,7 +141,7 @@ satalite.position.x = earthRadius + 50;
 //satalite.rotateZ(-23.4 * Math.PI/180);
 
 //rocket time yayayay yasyayayay yay
-const rocketGeometry = new THREE.ConeGeometry(300, 100, 32);
+const rocketGeometry = new THREE.ConeGeometry(300, 1000, 32);
 const rocketMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFF00 });
 const rocket = new THREE.Mesh(rocketGeometry, rocketMaterial);
 scene.add(rocket);
@@ -150,7 +150,6 @@ scene.add(rocket);
 const flightPath = flightPathObject.promise.finally(async () => { 
 	scene.add(flightPathObject.points);
 	console.log(flightPathObject.arr);
-	console.log(flightPathObject.dataWeightedAverage(4));
 });
 
 // Add OrbitControls
@@ -179,6 +178,7 @@ function render() {
 	
 	let rocketData = flightPathObject.dataWeightedAverage((Date.now() - startTime) * rocketSpeedMultiplier/100);
 	rocket.position.set(rocketData[1], rocketData[2], rocketData[3]);
+	rocket.quaternion.setFromUnitVectors(new THREE.Vector3(rocketData[4], rocketData[5], rocketData[6]), new THREE.Vector3(0,0,0));
 	//console.log(rocketData);
 	//this number gives a decent constant rotate, I dont know why. Maybe add a way to disable this in app?
 	// its time we make the rotation a FLOAT!!!! that way we dont need to change like 15 values
