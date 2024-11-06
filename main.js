@@ -179,6 +179,8 @@ function render() {
 	
 	let rocketData = flightPathObject.dataWeightedAverage((Date.now() - startTime) * rocketSpeedMultiplier/100);
 	rocket.position.set(rocketData[1], rocketData[2], rocketData[3]);
+	earthGrouping.position.set(rocketData[8], rocketData[9], rocketData[10]);
+	moon.position.set(rocketData[14], rocketData[15], rocketData[16]);
 	rocket.quaternion.setFromUnitVectors(new THREE.Vector3(rocketData[4], rocketData[5], rocketData[6]), new THREE.Vector3(0,0,0));
 	//console.log(rocketData);
 	//this number gives a decent constant rotate, I dont know why. Maybe add a way to disable this in app?
