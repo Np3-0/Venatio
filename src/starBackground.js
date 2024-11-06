@@ -7,7 +7,7 @@ export default function starBackground({starNums = 500} = {}){
 
     function makeRandomStarPoint(){
         //random value for the radius
-        const r = Math.floor(Math.random() * 200000) + 200000 ;
+        const r = Math.floor(Math.random() * 500000) + 500000 ;
         const randAngleOne = Math.random();
 
         //gets values for angles of the sphere, and converts to radians
