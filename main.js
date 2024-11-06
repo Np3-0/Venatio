@@ -11,6 +11,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import starBackground from "./src/starBackground";
 import atmosphericGlow from "./src/atmosphereGlow";
 import flightPathClass from "./data/flightpathdata";
+import satalite from "./src/satalite";
 
 let camera;
 let earthGrouping;
@@ -32,7 +33,7 @@ camera.position.x = 12500; //camera defaults to looking down -z axis and y axis 
 
 //scene graph (where we draw stuff)
 const scene = new THREE.Scene();
-const earthRadius = 6371.0088;
+const earthRadius = 6378.137;
 //sets the 3d space of the sphere
 const geometry = new THREE.SphereGeometry(earthRadius, 96, 240);
 
@@ -42,11 +43,8 @@ var material = new THREE.MeshPhongMaterial({
 
 //creating this group prevents clipping between the two textures for day/night cycle
 earthGrouping = new THREE.Group();
-// earthGrouping.rotateZ(-24.4 * Math.PI/180);
-scene.add(earthGrouping);
 
-//const sphere = new THREE.Mesh(geometry, material);
-//sphere.position.set(0, 0, 0);
+scene.add(earthGrouping);
 
 const lightDirection = new THREE.Vector3(-1000000, 0, 0).normalize();
 
@@ -76,16 +74,13 @@ const nightShader = new THREE.ShaderMaterial({
 
 const lightMesh = new THREE.Mesh(geometry, nightShader);
 earthGrouping.add(lightMesh);
+earthGrouping.rotateZ(-23.4 * Math.PI / 180);
 
 //i like clouds :)
 const cloudsMat = new THREE.MeshStandardMaterial({
 	//add the texture (Loader.load did NOT work)
 	map: new THREE.TextureLoader().load("/assets/clouds.jpg"),
-	//below is your brightness. i dunno why 3js makes it color
 	color: new THREE.Color(0.1, 0.1, 0.1),
-	// TRANSPARENCY BREAKS CLOUDS!!! DONT ENABLE
-	// transparent: true,
-	// opacity: 0.8,
 	blending: THREE.AdditiveBlending,
 });
 
@@ -97,8 +92,6 @@ earthGrouping.add(cloudsMesh);
 //adds stars to sky
 const stars = starBackground({ starNums: 10000 });
 scene.add(stars);
-
-
 
 //atmospheric glow
 const atmoSphereMaterial = atmosphericGlow();
@@ -128,16 +121,22 @@ scene.add(moon);
 moon.rotateZ(1.5 * Math.PI / 180);
 moon.position.set(-377000, -129000, -62500);
 
-const sataliteGeometry = new THREE.SphereGeometry(100, 96, 240);
-const sataliteMat = new THREE.MeshBasicMaterial({
-	color: 0x00FF00,
-});
+//satalite data
+const data = [
+	[35.3399, -116.875, 0.951499],
+	[-35.3985, 148.982, 0.69202],
+	[40.4256, -4.2541, 0.837051],
+	[37.9273, -75.475, -0.019736]
+]
+const baseSatalite = new THREE.SphereGeometry(100, 96, 240);
+const baseSataliteMaterial = new THREE.MeshBasicMaterial({ color: 0x00FF00 });
+const sataliteCoords = satalite(data);
 
-const satalite = new THREE.Mesh(sataliteGeometry, sataliteMat);
-scene.add(satalite);
-earthGrouping.add(satalite);
-satalite.position.x = earthRadius + 50;
-//satalite.rotateZ(-23.4 * Math.PI/180);
+for (let i = 0; i < sataliteCoords.length; i++) {
+	const satalite = new THREE.Mesh(baseSatalite, baseSataliteMaterial);
+	satalite.position.set(sataliteCoords[i][0], sataliteCoords[i][1], sataliteCoords[i][2]);
+	scene.add(satalite);
+}
 
 //rocket time yayayay yasyayayay yay
 const rocketGeometry = new THREE.ConeGeometry(300, 1000, 32);
