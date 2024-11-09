@@ -43,38 +43,36 @@ def best(index):
     with open('linkB.csv', mode ='r')as file:
         data = list(csv.reader(file))
         row = data[index+1]
-        # Reads from the spreadsheet (the code looks stupid cause some of them are blank so I had to error trap that)
+        # creates all the varialbes and initializes them to 0 cause otherwise it would cause problems
         wpsa_range = 0
+        wpsa_link = 0
         ds54_range = 0
+        ds54_link = 0
         ds24_range = 0
+        ds24_link = 0
         ds34_range = 0
-        #Because some of them are just blank, I make sure that they exist, otherwise the value is set to 0
+        ds34_link = 0
+        # If the antenna is active, it will get the range (from the csv) and run the link budget on it 
         if int(row[8])==1:
             wpsa_range = float(row[9])
+            wpsa_link = linkB(12, wpsa_range)
         if int(row[10]) == 1:
             ds54_range = float(row[11])
+            ds54_link = linkB(34, ds54_range)
         if int(row[12]) == 1:
             ds24_range = float(row[13])
+            ds24_link = linkB(34, ds24_range)
         if int(row[14]) == 1:
             ds34_range = float(row[15])
-        #If they are all blank, it will return none and 0
+            ds34_link = linkB(34, ds34_range)
+        #If they are all blank, it will return 0
         if wpsa_range == 0 and ds54_range == 0 and ds24_range == 0 and ds34_range == 0:
-            return ["none", 0]
-        #Puts them all into a dict
-        ranges = {"wpsa": wpsa_range, 
-                  "ds54": ds54_range, 
-                  "ds24": ds24_range, 
-                  "ds34": ds34_range}
-        #Gets the max range and the corresponding antenna
-        max_range = max(ranges.values())
-        max_antenna = max(ranges, key=ranges.get)
-        # all of them are 34 in diameter except for wpsa, so for wpsa, it will pass 12 for the diameter
-        if max_antenna == "wpsa":
-            max_link = linkB(12, max_range)
-        else:
-            max_link = linkB(34, max_range)
-        #Returns a list (not a tuple cuz im special) of the best antenna and the link budget of it
-        return [max_antenna, max_link]
+            return [0, 0, 0, 0]
+
+        
+        return [wpsa_link, ds54_link, ds24_link, ds34_link]
+
+        
 
 
 def main():
@@ -88,8 +86,10 @@ def main():
             dict = {}
             # Adds all the correct data to it
             dict["MISSION ELAPSED TIME (mins)"] = data[i+1][0]
-            dict["Antenna"] = best(i)[0]
-            dict["Budget"] = best(i)[1]
+            dict["WPSA Link Budget"] = best(i)[0]
+            dict["DS54 Link Budget"] = best(i)[1]
+            dict["DS24 Link Budget"] = best(i)[2]
+            dict["DS34 Link Budget"] = best(i)[3]
             # To measure progress (long ahh runtime)
             print(i)
             # Adds the list to a dict
@@ -97,8 +97,8 @@ def main():
         # Opens a CSV file and writes to it
         with open('linkAntenna.csv', 'w', newline='') as csvfile:
             #Title names
-            fieldnames = ['MISSION ELAPSED TIME (mins)', 'Antenna', 'Budget']
-            #Stuff from csv library (yes i am a library merchant idc)
+            fieldnames = ["MISSION ELAPSED TIME (mins)", "WPSA Link Budget", "DS54 Link Budget", "DS24 Link Budget", "DS34 Link Budget"]
+            #Stuff from csv library (yes i am an average python user library merchant idc)
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
             #Writes the list full of dicts from before
