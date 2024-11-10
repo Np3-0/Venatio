@@ -1,4 +1,6 @@
 import * as THREE from 'three';
+import atmosphereVertexShader from '../shaders/earth/atmosphere/atmosphereVertexShader';
+import atmosphereFragmentShader from '../shaders/earth/atmosphere/atmosphereFragmentShader';
 
 export default function atmosphericGlow({rimHex=0x57a5ff,  faceHex=0x000000} = {}){
     const uniforms = {
@@ -28,23 +30,11 @@ export default function atmosphericGlow({rimHex=0x57a5ff,  faceHex=0x000000} = {
             gl_Position = projectionMatrix * myPos;
         }
     `;
-    //applies to fragments/pixels
-    const fs = `
-        uniform vec3 rimColor;
-        uniform vec3 faceColor;
-
-        varying float vReflectivity;
-
-        void main(){
-            float f = clamp(vReflectivity, 0.0, 1.0);
-            gl_FragColor = vec4(mix(faceColor, rimColor, f), 1.0);
-        }
-    `;
 
     const atmoSphereMaterial = new THREE.ShaderMaterial({
         uniforms: uniforms,
-        vertexShader: vs,
-        fragmentShader: fs,
+        vertexShader: atmosphereVertexShader,
+        fragmentShader: atmosphereFragmentShader,
         opacity: 0.1,
         blending: THREE.AdditiveBlending,
     });

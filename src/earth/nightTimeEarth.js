@@ -1,4 +1,6 @@
 import * as THREE from "three";
+import earthVertexShader from "../shaders/earth/earthVertexShader";
+import earthFragmentShader from "../shaders/earth/earthFragmentShader";
 
 export default function nightTimeEarth(geometry, dayTimeTexture, nightTimeTexture, camera, lightDirection) {
     const dayTexture = new THREE.TextureLoader().load(dayTimeTexture);
@@ -13,8 +15,8 @@ export default function nightTimeEarth(geometry, dayTimeTexture, nightTimeTextur
             lightDirection: { value: earthLightDirection },
             resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
         },
-        vertexShader: document.getElementById("earthVertexShader").textContent,
-        fragmentShader: document.getElementById("earthFragmentShader").textContent,
+        vertexShader: earthVertexShader,
+        fragmentShader: earthFragmentShader,
         blending: THREE.NormalBlending,
     });
 

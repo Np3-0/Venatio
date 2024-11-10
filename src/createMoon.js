@@ -1,4 +1,6 @@
 import * as THREE from "three";
+import moonVertexShader from "./shaders/moon/moonVertexShader";
+import moonFragmentShader from "./shaders/moon/moonFragmentShader";
 
 export default function createMoon(lightDirection) {
     const moonTexture = "./assets/moonTexture.jpg";
@@ -8,8 +10,8 @@ export default function createMoon(lightDirection) {
             moonTexture: { value: new THREE.TextureLoader().load(moonTexture) },
             lightDirection: { value: lightDirection },
         },
-        vertexShader: document.getElementById("moonVertexShader").textContent,
-        fragmentShader: document.getElementById("moonFragmentShader").textContent,
+        vertexShader: moonVertexShader,
+        fragmentShader: moonFragmentShader,
     });
 
     const moon = new THREE.Mesh(moonGeometry, moonMaterial);
