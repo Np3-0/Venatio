@@ -11,8 +11,8 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import starBackground from "./src/starBackground";
 import flightPathClass from "./data/flightpathdata";
 import satellite from "./src/satellite";
-import earth from "./src/earth/earth";
-import moon from "./src/moon";
+import createEarth from "./src/earth/createEarth";
+import createMoon from "./src/createMoon";
 import createRocket from "./src/createRocket";
 
 let rocketSpeedMultiplier = 1;
@@ -38,9 +38,9 @@ scene.add(earthGrouping);
 earthGrouping.rotateZ(-23.4 * Math.PI / 180);
 
 //moved the entire damn earth to a function, be grateful
-//THIS IS A GROUP, NOT A MESH. sceneEarth.children[0] is the earth, sceneEarth.children[1] is the clouds, and sceneEarth.children[2] is the atmosphere
-const sceneEarth = earth(earthRadius, lightDirection, camera);
-earthGrouping.add(sceneEarth);
+//THIS IS A GROUP, NOT A MESH. earth.children[0] is the earth, earth.children[1] is the clouds, and earth.children[2] is the atmosphere
+const earth = createEarth(earthRadius, lightDirection, camera);
+earthGrouping.add(earth);
 
 //adds stars to sky
 const stars = starBackground({ starNums: 10000 });
@@ -52,8 +52,8 @@ scene.add(sunlight);
 
 //MOON TiME!!!!
 //AND I DID IT FOR THE MOON TOO!!!!
-const sceneMoon = moon(lightDirection);
-scene.add(sceneMoon);
+const moon = createMoon(lightDirection);
+scene.add(moon);
 
 //satellite 
 const baseSatellite = new THREE.SphereGeometry(100, 96, 240);
@@ -99,7 +99,7 @@ function render() {
 	let rocketData = flightPathObject.dataWeightedAverage((Date.now() - startTime) * rocketSpeedMultiplier/100);
 	rocket.position.set(rocketData[1], rocketData[2], rocketData[3]);
 	earthGrouping.position.set(rocketData[8], rocketData[9], rocketData[10]);
-	sceneMoon.position.set(rocketData[14], rocketData[15], rocketData[16]);
+	moon.position.set(rocketData[14], rocketData[15], rocketData[16]);
 	rocket.quaternion.setFromUnitVectors(new THREE.Vector3(rocketData[4], rocketData[5], rocketData[6]), new THREE.Vector3(0,0,0));
 	//this number gives a decent constant rotate, I dont know why. Maybe add a way to disable this in app?
 	// its time we make the rotation a FLOAT!!!! that way we dont need to change like 15 values
@@ -107,9 +107,9 @@ function render() {
 	let cloudRotation = 1.5 * earthRotation;
 	//earthGrouping.rotateY(earthRotation);
 	//since we return a group, the second child is the clouds
-	//sceneEarth.children[1].rotateY(cloudRotation);
+	//earth.children[1].rotateY(cloudRotation);
 
-	sceneMoon.updateMatrixWorld();
+	moon.updateMatrixWorld();
 
 	const needResize = canvas.width !== canvas.clientWidth || canvas.height !== canvas.clientHeight;
 	if (needResize) {

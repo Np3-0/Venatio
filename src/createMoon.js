@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-export default function moon(lightDirection) {
+export default function createMoon(lightDirection) {
     const moonTexture = "./assets/moonTexture.jpg";
     const moonGeometry = new THREE.SphereGeometry(1737.4, 96, 240);
     const moonMaterial = new THREE.ShaderMaterial({

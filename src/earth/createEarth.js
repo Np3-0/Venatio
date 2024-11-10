@@ -3,7 +3,7 @@ import clouds from "./clouds";
 import nightTimeEarth from "./nightTimeEarth";
 import atmosphericGlow from "./atmosphereGlow";
 
-export default function earth(earthRadius, lightDirection, camera){
+export default function createEarth(earthRadius, lightDirection, camera){
     const dayTimeTexture = '/assets/dayTimeEarth.jpg';
     const nightTimeTexture = '/assets/nightTimeEarth.jpg';
     const earthGrouping = new THREE.Group();
