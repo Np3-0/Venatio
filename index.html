@@ -14,19 +14,19 @@
 
     <script id="earthVertexShader" type="x-shader/x-vertex">
             //varying means the value is passed in the both the vertex and fragment shader, so a vector3 is passed to the fragment shader
-            varying vec3 varyNormal;
-            varying vec3 varyPosition;
-            varying vec2 varyUv;
+            varying vec3 vNormal;
+            varying vec3 vPosition;
+            varying vec2 vUv;
 
             void main() {
                 //basically prevents the model from being distorted, when orbitControls are used
-                varyNormal = normalize(normalMatrix * normal);
+                vNormal = normalize(normalMatrix * normal);
 
                 //position of the vertex in the world space (where the earth is)
-                varyPosition = vec3(modelViewMatrix * vec4(position, 1.0));
-                varyUv = uv;
+                vPosition = vec3(modelViewMatrix * vec4(position.xyz, 1.0));
+                vUv = uv;
                 //gets the final position for the rendering
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position.xyz, 1.0);
             }
         </script>
     <!-- fragment shader deals with colors, while vertex is for points on the 3d shape-->
@@ -35,18 +35,18 @@
             uniform sampler2D nightTexture;
             uniform vec3 lightDirection;
             uniform vec2 resolution;
-            varying vec3 varyNormal;
-            varying vec3 varyPosition;
-            varying vec2 varyUv;
+            varying vec3 vNormal;
+            varying vec3 vPosition;
+            varying vec2 vUv;
         
             void main() {
-                float dotData = dot(varyNormal, lightDirection);
+                float dotData = dot(vNormal, lightDirection);
                 //takes info abt the light and the normal of the vertex to calculate the brightness of the vertex
                 float blendFactor = smoothstep(-0.35, 0.35, dotData); 
 
                 //gets brightness of the current vertex
-                vec4 dayColor = texture2D(dayTexture, varyUv);
-                vec4 nightColor = texture2D(nightTexture, varyUv);
+                vec4 dayColor = texture2D(dayTexture, vUv);
+                vec4 nightColor = texture2D(nightTexture, vUv);
 
                 //blends the textures, so it looks muy bueno
                 gl_FragColor = mix(nightColor, dayColor, blendFactor);
@@ -61,8 +61,8 @@
                 vUv = uv;
                 vNormal = normal;
                 // Transform the normal to world space
-                vWorldNormal = (modelMatrix * vec4(normal, 0.0)).xyz;
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                vWorldNormal = (modelMatrix * vec4(normal.xyz, 0.0)).xyz;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position.xyz, 1.0);
             }
         </script>
     <script id="moonFragmentShader" type="x-shader/x-fragment">
@@ -83,7 +83,7 @@
             float finalLight = ambientLight + smoothTransition * (1.0 - ambientLight);
             vec3 finalColor = texColor.rgb * mix(shadowMultiplier, 1.0, finalLight);
             
-            gl_FragColor = vec4(finalColor, 1.0);
+            gl_FragColor = vec4(finalColor.rgb, 1.0);
         }
         </script>
     <script type="module" src="/main.js"></script>
