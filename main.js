@@ -13,6 +13,7 @@ import flightPathClass from "./data/flightpathdata";
 import satellite from "./src/satellite";
 import earth from "./src/earth/earth";
 import moon from "./src/moon";
+import createRocket from "./src/createRocket";
 
 let rocketSpeedMultiplier = 1;
 
@@ -53,16 +54,10 @@ scene.add(sunlight);
 const sceneMoon = moon();
 scene.add(sceneMoon);
 
-//satellite data
-const data = [
-	[35.3399, -116.875, 0.951499],
-	[-35.3985, 148.982, 0.69202],
-	[40.4256, -4.2541, 0.837051],
-	[37.9273, -75.475, -0.019736]
-];
+//satellite 
 const baseSatellite = new THREE.SphereGeometry(100, 96, 240);
 const baseSatelliteMaterial = new THREE.MeshBasicMaterial({ color: 0x00FF00 });
-const satelliteCoords = satellite(data);
+const satelliteCoords = satellite();
 
 for (let i = 0; i < satelliteCoords.length; i++) {
 	const satellite = new THREE.Mesh(baseSatellite, baseSatelliteMaterial);
@@ -71,14 +66,11 @@ for (let i = 0; i < satelliteCoords.length; i++) {
 }
 
 //rocket time yayayay yasyayayay yay
-const rocketGeometry = new THREE.ConeGeometry(300, 1000, 32);
-const rocketMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFF00 });
-const rocket = new THREE.Mesh(rocketGeometry, rocketMaterial);
+const rocket = createRocket();
 scene.add(rocket);
 
 const flightPath = flightPathObject.promise.finally(async () => { 
 	scene.add(flightPathObject.points);
-	console.log(flightPathObject.arr);
 });
 
 // Add OrbitControls
@@ -103,22 +95,18 @@ controls.update();
 //render function without rotation
 const startTime = Date.now();
 function render() {
-	
 	let rocketData = flightPathObject.dataWeightedAverage((Date.now() - startTime) * rocketSpeedMultiplier/100);
 	rocket.position.set(rocketData[1], rocketData[2], rocketData[3]);
 	earthGrouping.position.set(rocketData[8], rocketData[9], rocketData[10]);
 	sceneMoon.position.set(rocketData[14], rocketData[15], rocketData[16]);
 	rocket.quaternion.setFromUnitVectors(new THREE.Vector3(rocketData[4], rocketData[5], rocketData[6]), new THREE.Vector3(0,0,0));
-	//console.log(rocketData);
 	//this number gives a decent constant rotate, I dont know why. Maybe add a way to disable this in app?
 	// its time we make the rotation a FLOAT!!!! that way we dont need to change like 15 values
 	let earthRotation = 7.29 * Math.pow(10, -5);
-	let cloudRotation = 1.5 * (7.29 * Math.pow(10, -5));
-	// earthGrouping.rotateY(earthRotation);
-	// sphere.rotateY(earthRotation); //approx 0.05 degrees
-	// lightMesh.rotateY(earthRotation);
-	// atmoSphere.rotateY(earthRotation);
-	// cloudsMesh.rotateY(cloudRotation);
+	let cloudRotation = 1.5 * earthRotation;
+	//earthGrouping.rotateY(earthRotation);
+	//since we return a group, the second child is the clouds
+	//sceneEarth.children[1].rotateY(cloudRotation);
 
 	sceneMoon.updateMatrixWorld();
 
