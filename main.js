@@ -38,6 +38,7 @@ scene.add(earthGrouping);
 earthGrouping.rotateZ(-23.4 * Math.PI / 180);
 
 //moved the entire damn earth to a function, be grateful
+//THIS IS A GROUP, NOT A MESH. sceneEarth.children[0] is the earth, sceneEarth.children[1] is the clouds, and sceneEarth.children[2] is the atmosphere
 const sceneEarth = earth(earthRadius, lightDirection, camera);
 earthGrouping.add(sceneEarth);
 
@@ -51,7 +52,7 @@ scene.add(sunlight);
 
 //MOON TiME!!!!
 //AND I DID IT FOR THE MOON TOO!!!!
-const sceneMoon = moon();
+const sceneMoon = moon(lightDirection);
 scene.add(sceneMoon);
 
 //satellite 

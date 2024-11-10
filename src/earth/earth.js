@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import clouds from "./clouds";
 import nightTimeEarth from "./nightTimeEarth";
-import atmosphericGlow from "../atmosphereGlow";
+import atmosphericGlow from "./atmosphereGlow";
 
 export default function earth(earthRadius, lightDirection, camera){
     const dayTimeTexture = '/assets/dayTimeEarth.jpg';
