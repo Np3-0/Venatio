@@ -9,9 +9,10 @@
 import * as THREE from "three";
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import starBackground from "./src/starBackground";
-import atmosphericGlow from "./src/atmosphereGlow";
 import flightPathClass from "./data/flightpathdata";
 import satalite from "./src/satalite";
+import earth from "./src/earth/earth";
+import moon from "./src/moon";
 
 let camera;
 let earthGrouping;
@@ -23,103 +24,38 @@ const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
 
 const flightPathObject = new flightPathClass();
 
-//Set strings for day and night
-const dayTimeTexture = '/assets/dayTimeEarth.jpg';
-const nightTimeTexture = '/assets/nightTimeEarth.jpg';
-
 //parameters are: fov, aspect, near, and far
 camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 10, -1);
 camera.position.x = 12500; //camera defaults to looking down -z axis and y axis up
 
 //scene graph (where we draw stuff)
 const scene = new THREE.Scene();
-const earthRadius = 6378.137;
-//sets the 3d space of the sphere
-const geometry = new THREE.SphereGeometry(earthRadius, 96, 240);
 
-var material = new THREE.MeshPhongMaterial({
-	map: new THREE.TextureLoader().load(dayTimeTexture),
-});
+const earthRadius = 6378.137;
+const lightDirection = new THREE.Vector3(-1000000, 0, 0).normalize();
 
 //creating this group prevents clipping between the two textures for day/night cycle
 earthGrouping = new THREE.Group();
 
 scene.add(earthGrouping);
-
-const lightDirection = new THREE.Vector3(-1000000, 0, 0).normalize();
-
-//add parts of the sphere to the earth group, instead of the scene
-//earthGrouping.add(sphere);
-
-// vec3(directionofcamera-directionoflight)
-
-//values needed for the shading: texture and where the light is from
-const dayTexture = new THREE.TextureLoader().load(dayTimeTexture);
-const nightTexture = new THREE.TextureLoader().load(nightTimeTexture);
-const earthLightDirection = lightDirection.clone().applyQuaternion(camera.quaternion.clone().invert()).normalize();
-//changed to shaderMaterial for the shading
-const nightShader = new THREE.ShaderMaterial({
-	//uniforms are just the data that the shader uses we defined earlier
-	uniforms: {
-		dayTexture: { value: dayTexture },
-		nightTexture: { value: nightTexture },
-		lightDirection: { value: earthLightDirection },
-		resolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
-	},
-	vertexShader: document.getElementById("earthVertexShader").textContent,
-	fragmentShader: document.getElementById("earthFragmentShader").textContent,
-	//transparent: true,
-	blending: THREE.NormalBlending,
-});
-
-const lightMesh = new THREE.Mesh(geometry, nightShader);
-earthGrouping.add(lightMesh);
 earthGrouping.rotateZ(-23.4 * Math.PI / 180);
 
-//i like clouds :)
-const cloudsMat = new THREE.MeshStandardMaterial({
-	//add the texture (Loader.load did NOT work)
-	map: new THREE.TextureLoader().load("/assets/clouds.jpg"),
-	color: new THREE.Color(0.1, 0.1, 0.1),
-	blending: THREE.AdditiveBlending,
-});
-
-//add that into the earth group for easy rotation
-const cloudsMesh = new THREE.Mesh(geometry, cloudsMat);
-cloudsMesh.scale.setScalar(1.003);
-earthGrouping.add(cloudsMesh);
+//moved the entire damn earth to a function, be grateful
+const sceneEarth = earth(earthRadius, lightDirection, camera);
+earthGrouping.add(sceneEarth);
 
 //adds stars to sky
 const stars = starBackground({ starNums: 10000 });
 scene.add(stars);
 
-//atmospheric glow
-const atmoSphereMaterial = atmosphericGlow();
-const atmoSphere = new THREE.Mesh(geometry, atmoSphereMaterial);
-earthGrouping.add(atmoSphere);
-atmoSphere.scale.setScalar(1.01);
-
 //sunlight, hopefully works better now
 const sunlight = new THREE.AmbientLight(0xFFFFFF, 1);
 scene.add(sunlight);
+
 //MOON TiME!!!!
-
-//texture
-const moonTexture = "./assets/moonTexture.jpg";
-const moonGeometry = new THREE.SphereGeometry(1737.4, 96, 240);
-const moonMaterial = new THREE.ShaderMaterial({
-	uniforms: {
-		moonTexture: { value: new THREE.TextureLoader().load(moonTexture) },
-		lightDirection: { value: new THREE.Vector3(-1, 0, 0).normalize() },
-	},
-	vertexShader: document.getElementById("moonVertexShader").textContent,
-	fragmentShader: document.getElementById("moonFragmentShader").textContent,
-})
-
-const moon = new THREE.Mesh(moonGeometry, moonMaterial);
-scene.add(moon);
-moon.rotateZ(1.5 * Math.PI / 180);
-moon.position.set(-377000, -129000, -62500);
+//AND I DID IT FOR THE MOON TOO!!!!
+const sceneMoon = moon();
+scene.add(sceneMoon);
 
 //satalite data
 const data = [
@@ -135,7 +71,7 @@ const sataliteCoords = satalite(data);
 for (let i = 0; i < sataliteCoords.length; i++) {
 	const satalite = new THREE.Mesh(baseSatalite, baseSataliteMaterial);
 	satalite.position.set(sataliteCoords[i][0], sataliteCoords[i][1], sataliteCoords[i][2]);
-	scene.add(satalite);
+	earthGrouping.add(satalite);
 }
 
 //rocket time yayayay yasyayayay yay
@@ -149,8 +85,6 @@ const flightPath = flightPathObject.promise.finally(async () => {
 	scene.add(flightPathObject.points);
 	console.log(flightPathObject.arr);
 });
-
-
 
 // Add OrbitControls
 controls = new OrbitControls(camera, canvas);
@@ -179,7 +113,7 @@ function render() {
 	let rocketData = flightPathObject.dataWeightedAverage((Date.now() - startTime) * rocketSpeedMultiplier/100);
 	rocket.position.set(rocketData[1], rocketData[2], rocketData[3]);
 	earthGrouping.position.set(rocketData[8], rocketData[9], rocketData[10]);
-	moon.position.set(rocketData[14], rocketData[15], rocketData[16]);
+	sceneMoon.position.set(rocketData[14], rocketData[15], rocketData[16]);
 	rocket.quaternion.setFromUnitVectors(new THREE.Vector3(rocketData[4], rocketData[5], rocketData[6]), new THREE.Vector3(0,0,0));
 	//console.log(rocketData);
 	//this number gives a decent constant rotate, I dont know why. Maybe add a way to disable this in app?
@@ -194,8 +128,7 @@ function render() {
 
 
 	const worldLightDir = new THREE.Vector3(-1, 0, 0);
-	moon.updateMatrixWorld();
-	moonMaterial.uniforms.lightDirection.value.set(-1, 0, 0).normalize();
+	sceneMoon.updateMatrixWorld();
 
 	const needResize = canvas.width !== canvas.clientWidth || canvas.height !== canvas.clientHeight;
 	if (needResize) {
@@ -210,7 +143,6 @@ function render() {
 requestAnimationFrame(render);
 
 //gets the button being clicked and sets the camera/target better than doing this crap 4 times
-//object with name of button as object, and camerapos and targetpos as arrays
 const buttonInfo = {
 	earthButton: {
 		cameraPos: [0, 0, 12500],
@@ -228,7 +160,7 @@ document.querySelectorAll(".button-container button").forEach(button => button.a
 	controls.target.set(...targetPos); // Reset the target of the controls
 	controls.update();
 }));
-
+//THIS DOES NOT WORK AT ALL AND I CANT FIX IT CURRENTLY SOMEONE TAKE A GUN AND SHOOT Me
 document.querySelector("#rocketInput").addEventListener("change", (e) => {
 	rocketSpeedMultiplier = e.target.value/10;
 	console.log(rocketSpeedMultiplier);
