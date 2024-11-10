@@ -10,13 +10,10 @@ import * as THREE from "three";
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import starBackground from "./src/starBackground";
 import flightPathClass from "./data/flightpathdata";
-import satalite from "./src/satalite";
+import satellite from "./src/satellite";
 import earth from "./src/earth/earth";
 import moon from "./src/moon";
 
-let camera;
-let earthGrouping;
-let controls;
 let rocketSpeedMultiplier = 1;
 
 const canvas = document.querySelector("#c");
@@ -25,7 +22,7 @@ const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
 const flightPathObject = new flightPathClass();
 
 //parameters are: fov, aspect, near, and far
-camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 10, -1);
+const camera = new THREE.PerspectiveCamera(75, canvas.clientWidth / canvas.clientHeight, 10, -1);
 camera.position.x = 12500; //camera defaults to looking down -z axis and y axis up
 
 //scene graph (where we draw stuff)
@@ -35,8 +32,7 @@ const earthRadius = 6378.137;
 const lightDirection = new THREE.Vector3(-1000000, 0, 0).normalize();
 
 //creating this group prevents clipping between the two textures for day/night cycle
-earthGrouping = new THREE.Group();
-
+const earthGrouping = new THREE.Group();
 scene.add(earthGrouping);
 earthGrouping.rotateZ(-23.4 * Math.PI / 180);
 
@@ -57,21 +53,21 @@ scene.add(sunlight);
 const sceneMoon = moon();
 scene.add(sceneMoon);
 
-//satalite data
+//satellite data
 const data = [
 	[35.3399, -116.875, 0.951499],
 	[-35.3985, 148.982, 0.69202],
 	[40.4256, -4.2541, 0.837051],
 	[37.9273, -75.475, -0.019736]
-]
-const baseSatalite = new THREE.SphereGeometry(100, 96, 240);
-const baseSataliteMaterial = new THREE.MeshBasicMaterial({ color: 0x00FF00 });
-const sataliteCoords = satalite(data);
+];
+const baseSatellite = new THREE.SphereGeometry(100, 96, 240);
+const baseSatelliteMaterial = new THREE.MeshBasicMaterial({ color: 0x00FF00 });
+const satelliteCoords = satellite(data);
 
-for (let i = 0; i < sataliteCoords.length; i++) {
-	const satalite = new THREE.Mesh(baseSatalite, baseSataliteMaterial);
-	satalite.position.set(sataliteCoords[i][0], sataliteCoords[i][1], sataliteCoords[i][2]);
-	earthGrouping.add(satalite);
+for (let i = 0; i < satelliteCoords.length; i++) {
+	const satellite = new THREE.Mesh(baseSatellite, baseSatelliteMaterial);
+	satellite.position.set(satelliteCoords[i][0], satelliteCoords[i][1], satelliteCoords[i][2]);
+	earthGrouping.add(satellite);
 }
 
 //rocket time yayayay yasyayayay yay
@@ -80,18 +76,16 @@ const rocketMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFF00 });
 const rocket = new THREE.Mesh(rocketGeometry, rocketMaterial);
 scene.add(rocket);
 
-
 const flightPath = flightPathObject.promise.finally(async () => { 
 	scene.add(flightPathObject.points);
 	console.log(flightPathObject.arr);
 });
 
 // Add OrbitControls
-controls = new OrbitControls(camera, canvas);
+const controls = new OrbitControls(camera, canvas);
 //added zoom params, but better.
 controls.minDistance = 10000;
 controls.maxDistance = 500000;
-
 
 //turns out we have to make our own panning!!!!!!
 const panningLimit = 500000;
@@ -126,8 +120,6 @@ function render() {
 	// atmoSphere.rotateY(earthRotation);
 	// cloudsMesh.rotateY(cloudRotation);
 
-
-	const worldLightDir = new THREE.Vector3(-1, 0, 0);
 	sceneMoon.updateMatrixWorld();
 
 	const needResize = canvas.width !== canvas.clientWidth || canvas.height !== canvas.clientHeight;
