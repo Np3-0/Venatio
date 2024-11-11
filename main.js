@@ -58,6 +58,7 @@ scene.add(moon);
 
 //satellite 
 const baseSatellite = new THREE.SphereGeometry(100, 96, 240);
+// I gotta go through this with someone so I could add the correct colors - Mano (Nate we should do this soon cuz its a big part of the ruberic)
 const baseSatelliteMaterial = new THREE.MeshBasicMaterial({ color: 0x00FF00 });
 const satelliteCoords = satellite();
 console.log(satelliteCoords);
