@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-export default function satalite(){
+export default function satalite() {
     const data = [
         [35.3399, -116.875, 0.951499],
         [-35.3985, 148.982, 0.69202],
@@ -17,8 +17,8 @@ export default function satalite(){
         let radLon = data[i][1] * (Math.PI / 180);
 
         let x = totalRadius * Math.cos(radLat) * Math.cos(radLon);
-        let y = totalRadius * Math.cos(radLat) * Math.sin(radLon);
-        let z = totalRadius * Math.sin(radLat);
+        let y = totalRadius * Math.sin(radLat);
+        let z = -totalRadius * Math.cos(radLat) * Math.sin(radLon);
         coords.push([x, y, z]);
     }
     return coords;

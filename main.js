@@ -35,7 +35,8 @@ const lightDirection = new THREE.Vector3(-1000000, 0, 0).normalize();
 //creating this group prevents clipping between the two textures for day/night cycle
 const earthGrouping = new THREE.Group();
 scene.add(earthGrouping);
-earthGrouping.rotateZ(-23.4 * Math.PI / 180);
+//earthGrouping.rotateZ(-23.4 * Math.PI / 180);
+//earthGrouping.rotateX(3223211.90698 * Math.PI/180);
 
 //moved the entire damn earth to a function, be grateful
 //THIS IS A GROUP, NOT A MESH. earth.children[0] is the earth, earth.children[1] is the clouds, and earth.children[2] is the atmosphere
@@ -59,7 +60,7 @@ scene.add(moon);
 const baseSatellite = new THREE.SphereGeometry(100, 96, 240);
 const baseSatelliteMaterial = new THREE.MeshBasicMaterial({ color: 0x00FF00 });
 const satelliteCoords = satellite();
-
+console.log(satelliteCoords);
 for (let i = 0; i < satelliteCoords.length; i++) {
 	const satellite = new THREE.Mesh(baseSatellite, baseSatelliteMaterial);
 	satellite.position.set(satelliteCoords[i][0], satelliteCoords[i][1], satelliteCoords[i][2]);
