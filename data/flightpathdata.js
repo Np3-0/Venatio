@@ -77,8 +77,8 @@ export default function flightPathClass() {
 			for (let j = 0; j < this.key.length; j++) {
 				this.arr[j].push(parseFloat(line[j]));
 			}
-			console.log(line[1], line[2], line[3]);
-			color.setRGB((line[3] < -8000 ? 255 : 0), (line[3] < -8000 ? 0 : 255), 0, THREE.SRGBColorSpace);
+			console.log(line[1], line.indexOf(line[1]));
+			color.setRGB(255, line[1] >= -8304.992087 ? 255 : 0, 0, THREE.SRGBColorSpace);
 			this.colors.push(color.r, color.g, color.b);
 			this.coords.push(line[1], line[2], line[3]);
 		}
