@@ -53,7 +53,7 @@ export default function flightPathClass() {
 		
 		const geometry = new THREE.BufferGeometry();
 		geometry.setAttribute('position', new THREE.Float32BufferAttribute(coords, 3));
-		const material = new THREE.PointsMaterial({ 
+		const material = new THREE.PointsMaterial({
 		    color: 0x00FF00,
 		    size: 100,
 		});
@@ -62,26 +62,32 @@ export default function flightPathClass() {
 		return points;
 	}
 
-	this.arr, this.key, this.points, this.geometry, this.material;
+	this.arr, this.key, this.points, this.geometry, this.material, this.colors;
 	this.promise = fetch('data/flightpath.csv').then(response => {
 		return response.text(); // Extract the text from the response
 	}).then(text => {
 		let data = text.split("\n");
 		this.coords = [];
+		this.colors = [];
 		this.key = data[0].split(",");
 		this.arr = [...Array(this.key.length)].map(e => []);
+		const color = new THREE.Color();
 		for (let i = 1; i < data.length-1; i++) {
 			let line = data[i].split(",");
 			for (let j = 0; j < this.key.length; j++) {
 				this.arr[j].push(parseFloat(line[j]));
 			}
+			console.log(line[1], line[2], line[3]);
+			color.setRGB((line[3] < -8000 ? 255 : 0), (line[3] < -8000 ? 0 : 255), 0, THREE.SRGBColorSpace);
+			this.colors.push(color.r, color.g, color.b);
 			this.coords.push(line[1], line[2], line[3]);
 		}
 		this.geometry = new THREE.BufferGeometry();
 		console.log(this.coords);
 		this.geometry.setAttribute('position', new THREE.Float32BufferAttribute(this.coords, 3));
+		this.geometry.setAttribute('color', new THREE.Float32BufferAttribute(this.colors, 3));
 		this.material = new THREE.PointsMaterial({ 
-			color: 0x00FF00,
+			vertexColors: true,
 			size: 100,
 		});
 		this.points = new THREE.Points(this.geometry, this.material);
